@@ -5,10 +5,10 @@ Manage Xcloud through the **public Cloud Console REST API** at
 key and the HashiCorp Terraform Plugin Framework (protocol 6). It has no database,
 admin-session, CLI subprocess, or upstream Xcloud credentials dependency.
 
-The provider is maintained in its own repository:
+The provider is maintained in its public repository:
 [studio-ch/terraform-provider-xcloud](https://github.com/studio-ch/terraform-provider-xcloud).
 The source address is `studio-ch/xcloud`; **it has not been published to the
-Terraform Registry**. Use the local development installation below.
+Terraform Registry**. Install the preview binary or build from source as described below.
 
 ## Resources
 
@@ -32,10 +32,24 @@ cover common attributes; `response_json` exposes the complete public DTO,
 including additional pricing and availability metadata. Lists return `items`.
 See [`docs/`](./docs/index.md) for the schema and examples.
 
+## Download the preview
+
+Download the archive for your workstation from
+[GitHub Releases](https://github.com/studio-ch/terraform-provider-xcloud/releases).
+The first preview is `v0.1.0-beta.1`. Builds are available for macOS, Linux and
+Windows on AMD64 and ARM64. Extract the archive into a dedicated directory and
+point `dev_overrides` below to that directory. The archive contains
+`terraform-provider-xcloud` (`terraform-provider-xcloud.exe` on Windows).
+
+Verify the archive against the release's `SHA256SUMS` file before extracting it:
+`shasum -a 256 <archive.zip>` on macOS or `sha256sum <archive.zip>` on Linux.
+Checksums detect download corruption; these preview binaries are not signed.
+No Go installation is needed when using a downloaded binary.
+
 ## Build and use locally
 
 Requires Go 1.26.7 and Terraform >= 1.5. Tests also run the Terraform executable.
-Clone the repository (repository access is required if it is private), then build:
+Clone the public repository, then build:
 
 ```sh
 git clone https://github.com/studio-ch/terraform-provider-xcloud.git
@@ -184,7 +198,7 @@ GitHub Actions builds the provider, checks Go and Terraform formatting, runs
 `go vet`, and executes the full test suite with the race detector on pushes and
 pull requests. No monorepo or Go workspace is required.
 
-Registry publication, signed release binaries and a real deployment acceptance
+Registry publication, release signing and a real deployment acceptance
 run remain separate release steps. Building and testing do not create cloud resources.
 
 The implemented surface covers infrastructure lifecycle. Guest command execution,

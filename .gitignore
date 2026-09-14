@@ -7,3 +7,5 @@ dist/
 *.tfvars
 !*.tfvars.example
 crash.log
+__pycache__/
+*.pyc
