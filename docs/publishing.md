@@ -1,28 +1,29 @@
 # Publishing the Xcloud provider
 
-The public repository is `studio-ch/terraform-provider-xcloud`; the intended
+The public repository is `studio-ch/terraform-provider-xcloud`; the published
 Terraform Registry address is `studio-ch/xcloud`.
 
 ## Registration status (2026-09-14)
 
-The `studio-ch` public namespace is claimed by the HCP Terraform organization
-`flow-swiss`. The Terraform Cloud GitHub App has access to the provider repository,
-and the namespace lists release-signing key `4F5D61DF38144775` (the fingerprint below).
+Published: [studio-ch/xcloud 0.1.0-beta.2](https://registry.terraform.io/providers/studio-ch/xcloud/0.1.0-beta.2/docs).
+The public versions endpoint lists all six platform archives with protocol 6.
+A fresh `terraform init` using only direct Registry installation succeeded on
+macOS ARM64 and verified signing key `4F5D61DF38144775`. Validation and schema loading
+also passed (9 resources and 20 data sources). No live cloud resources were created.
 
-The signed GitHub release `v0.1.0-beta.2` is published and its downloaded artifacts
-have passed signature, checksum and local Terraform loading checks. Public Registry
-publication is still pending: HCP intermittently fails to load the namespace's
-artifact list with "An unexpected error occurred. Please try again later."
-The public versions endpoint still returns `provider not found`.
+The `studio-ch` public namespace belongs to HCP Terraform organization `flow-swiss`.
+The Terraform Cloud GitHub App has access to the provider repository and the
+namespace holds the public release-signing key documented below.
 
-Until publication is restored, [filesystem mirror installation](mirror-installation.md)
-provides a verified path for normal `terraform init` using the signed GitHub
-release. This is an installation workaround, not public Registry publication.
+Initial attempts in the Codex in-app browser displayed errors on namespace pages.
+The same namespace and settings worked in Dia, where publication completed without
+reclaiming the namespace. A server-side namespace defect was not confirmed.
+[Support case #50](https://github.com/hashicorp/terraform-registry-support/issues/50)
+records the investigation. Use a conventional browser for publication management.
 
-Resume from [the existing namespace](https://app.terraform.io/app/flow-swiss/registry/public-namespaces/studio-ch),
-using **Publish → Provider** once that page loads. The namespace and signing key
-are already configured; do not recreate them. Complete the fresh Registry
-installation check below before changing customer-facing availability claims.
+The unsigned legacy `v0.1.0-beta.1` could not be imported because it lacks the
+required checksum/signature files. It is retained unchanged on GitHub; the signed
+`v0.1.0-beta.2` is the first Registry release.
 
 ## Release assets
 
@@ -30,7 +31,7 @@ Tags trigger `.github/workflows/release.yml`, which tests the provider, builds s
 platform archives, writes the protocol 6 manifest, signs the versioned checksum
 file, verifies its signature and publishes a GitHub prerelease. Existing versions
 must not be overwritten. `v0.1.0-beta.1` is the original unsigned preview;
-`v0.1.0-beta.2` is the first release prepared for Registry registration.
+`v0.1.0-beta.2` is the first release published in the Registry.
 
 The repository secrets `GPG_PRIVATE_KEY` and `PASSPHRASE` contain a dedicated
 RSA release key. Its public counterpart is [xcloud-release-signing.asc](../keys/xcloud-release-signing.asc).
@@ -39,7 +40,7 @@ Recovery material is stored outside the source checkout with restricted filesyst
 permissions. Do not commit private keys or passphrases. Preserve the public key
 when rotating keys so existing releases can still be verified.
 
-## One-time Registry registration
+## Registration checklist (completed)
 
 1. Sign in through [HCP Terraform public namespaces](https://app.terraform.io/app/registry/public-namespaces).
 2. Connect or select the GitHub namespace `studio-ch`, with repository administration

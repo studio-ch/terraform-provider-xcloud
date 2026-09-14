@@ -1,7 +1,8 @@
 # Install the signed preview through a filesystem mirror
 
-This is a working installation alternative while public Terraform Registry
-registration is pending. It supports normal `terraform init`, version selection
+The provider is now published in the Terraform Registry; prefer the
+[standard installation](../README.md#install-from-the-terraform-registry).
+This mirror method remains an alternative for restricted-network environments. It supports normal `terraform init`, version selection
 and dependency locking with the source address `studio-ch/xcloud`.
 It does not publish the provider to the public Registry.
 
@@ -56,7 +57,7 @@ provider_installation {
 }
 ```
 
-Both rules matter: the exclusion prevents Terraform from querying the unavailable
+Both rules matter: the exclusion prevents Terraform from querying the
 Registry entry for Xcloud. Other providers continue to use their normal registries.
 If your workflow needs other CLI settings, include those in this file too:
 `TF_CLI_CONFIG_FILE` selects a configuration file instead of merging it with your
@@ -126,7 +127,7 @@ in a fresh directory with a dedicated CLI configuration and no development
 overrides. The loaded schema contains 9 resources and 20 data sources.
 This does not constitute an acceptance test against live Xcloud resources.
 
-After public Registry installation is verified, remove the Xcloud mirror rule
+To switch to the verified public Registry installation, remove the Xcloud mirror rule
 and its `direct` exclusion (or select your usual CLI configuration). Keep the
 same source address and version constraint; no Terraform state address migration
 is necessary. Run `terraform init` to verify installation through the Registry.

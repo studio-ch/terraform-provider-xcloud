@@ -7,12 +7,36 @@ admin-session, CLI subprocess, or upstream Xcloud credentials dependency.
 
 The provider is maintained in its public repository:
 [studio-ch/terraform-provider-xcloud](https://github.com/studio-ch/terraform-provider-xcloud).
-The source address is `studio-ch/xcloud`; **it has not been published to the
-Terraform Registry**. Install the preview binary or build from source as described below.
+The provider is published in the [Terraform Registry](https://registry.terraform.io/providers/studio-ch/xcloud/0.1.0-beta.2/docs)
+as `studio-ch/xcloud`. The current signed preview is `0.1.0-beta.2`.
 
-For normal `terraform init` and version locking while Registry registration is
-pending, use the [verified filesystem mirror installation](docs/mirror-installation.md).
-It retains the `studio-ch/xcloud` source address and uses the signed GitHub release.
+## Install from the Terraform Registry
+
+Declare the provider in your Terraform configuration:
+
+```hcl
+terraform {
+  required_providers {
+    xcloud = {
+      source  = "studio-ch/xcloud"
+      version = "0.1.0-beta.2"
+    }
+  }
+}
+
+provider "xcloud" {}
+```
+
+Run `terraform init` and `terraform validate`. For plans and applies, provide your
+API key through `XCLOUD_API_TOKEN`. Terraform downloads the correct platform archive
+and verifies the release signature. Go and custom CLI installation settings are
+not required. Keep the exact prerelease version constraint while evaluating the preview.
+
+If you previously configured an Xcloud `dev_overrides` or mirror entry, remove it
+and any matching `direct` exclusion, or select your usual CLI configuration before
+initializing from the Registry. The source address remains unchanged.
+[Filesystem mirror installation](docs/mirror-installation.md) remains available
+for restricted-network environments.
 
 ## Resources
 
@@ -89,10 +113,10 @@ provider_installation {
 }
 ```
 
-For configurations using only this locally overridden provider, run `terraform
-plan` and `terraform apply` directly; `terraform init` would try to locate the
-unpublished provider in the Registry. For configurations using other providers,
-install those dependencies separately as needed.
+Development overrides use your local build during `plan` and `apply`.
+`terraform init` still resolves the declared release version from the Registry;
+it does not install that local build. Use the Registry installation above for
+normal release evaluation.
 
 Issue a **Read + Write** API key in the panel's API-key settings. The key fixes
 the organization; use separate provider aliases with different keys for multiple
@@ -217,8 +241,10 @@ GitHub Actions builds the provider, checks Go and Terraform formatting, runs
 `go vet`, and executes the full test suite with the race detector on pushes and
 pull requests. No monorepo or Go workspace is required.
 
-The signed release is prepared for Terraform Registry registration. Registry
-registration and a real deployment acceptance run remain pending. Building and testing do not create cloud resources.
+The signed `0.1.0-beta.2` release is published in the Terraform Registry. A fresh
+direct Registry installation, signature verification, validation and schema loading
+passed on macOS ARM64. A real deployment acceptance run remains pending; the
+provider remains a preview. Building and testing do not create cloud resources.
 
 The implemented surface covers infrastructure lifecycle. Guest command execution,
 consoles, image push/build jobs, metrics, maintenance actions and billing/admin operations are not

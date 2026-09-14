@@ -51,7 +51,7 @@ terraform fmt -check -recursive examples
 - Ein mehrdeutig fehlgeschlagenes Create kann trotz unterbundener Retries eine Ressource ohne State-Eintrag hinterlassen. Vor einem weiteren Apply muss deren Existenz geprüft und die Ressource gegebenenfalls importiert werden.
 - Elastic IPs, SSH-Keys und Registry-Credentials werden mangels GET-by-ID per Listen-Scan gelesen: linear pro Ressource, potenziell quadratische Übertragung bei vielen einzeln verwalteten Objekten. Dies bleibt eine API-bedingte Skalierungsgrenze.
 
-- Kein Test gegen eine reale Stage-/Produktionsumgebung und keine Registry-Veröffentlichung oder signierten Releases. Dafür werden eine passende Umgebung, Credentials und eine Release-Konfiguration benötigt.
+- Die signierte Version `0.1.0-beta.2` ist in der Terraform Registry veröffentlicht; direkte Installation, Signaturprüfung, Validierung und Schema-Laden wurden auf macOS ARM64 geprüft. Ein Test gegen eine reale Stage-/Produktionsumgebung steht weiterhin aus.
 - Gast-Exec, Dateiübertragung, Wartungsaktionen, Image-Push-Jobs, Metriken, WebSocket-Konsole, Computer-/Workspace-/Screen-APIs sind nicht implementiert. Sie gehören zu operativen oder interaktiven API-Funktionen; dieser Ausbau betrifft deklarative Infrastruktur.
 - Das API-DTO muss `bootIntoRecovery` liefern. Passwort- und SSH-Injektion erfolgen im Worker; erfolgreicher Apply bestätigt keine Gast-Anmeldung.
 - Passwörter sind in Terraform als sensitive markiert, liegen aber im State. Entfernen eines Passwortarguments löscht kein bestehendes Passwort.
