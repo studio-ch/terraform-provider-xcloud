@@ -15,6 +15,10 @@ publication is still pending: HCP intermittently fails to load the namespace's
 artifact list with "An unexpected error occurred. Please try again later."
 The public versions endpoint still returns `provider not found`.
 
+Until publication is restored, [filesystem mirror installation](mirror-installation.md)
+provides a verified path for normal `terraform init` using the signed GitHub
+release. This is an installation workaround, not public Registry publication.
+
 Resume from [the existing namespace](https://app.terraform.io/app/flow-swiss/registry/public-namespaces/studio-ch),
 using **Publish → Provider** once that page loads. The namespace and signing key
 are already configured; do not recreate them. Complete the fresh Registry

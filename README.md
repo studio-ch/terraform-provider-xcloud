@@ -10,6 +10,10 @@ The provider is maintained in its public repository:
 The source address is `studio-ch/xcloud`; **it has not been published to the
 Terraform Registry**. Install the preview binary or build from source as described below.
 
+For normal `terraform init` and version locking while Registry registration is
+pending, use the [verified filesystem mirror installation](docs/mirror-installation.md).
+It retains the `studio-ch/xcloud` source address and uses the signed GitHub release.
+
 ## Resources
 
 | Terraform type | Behavior | Import ID |
