@@ -31,6 +31,11 @@ jobs:
         run: make build lint test
       - name: Build archives and checksums
         run: python3 scripts/build_release.py "$GITHUB_REF_NAME"
+      - name: Sign and verify checksums
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.PASSPHRASE }}
+        run: python3 scripts/sign_release.py "$GITHUB_REF_NAME"
       - name: Publish GitHub preview release
         env:
           GH_TOKEN: ${{ github.token }}

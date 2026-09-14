@@ -14,4 +14,4 @@ Read existing Xcloud elastic_ips through the public API. Lists reflect API visib
 | `status` | `string` | Read-only |  |
 | `target_instance_id` | `string` | Read-only |  |
 
-[Provider setup and lifecycle details](../../README.md)
+[Provider setup and lifecycle details](https://github.com/studio-ch/terraform-provider-xcloud#readme)

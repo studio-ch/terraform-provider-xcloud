@@ -23,4 +23,4 @@ terraform import xcloud_registry_credential.existing 66666666-6666-4666-8666-666
 
 Define the matching resource block before import. Passwords and registration authentication cannot be reconstructed from the API.
 
-[Provider setup and lifecycle details](../../README.md)
+[Provider setup and lifecycle details](https://github.com/studio-ch/terraform-provider-xcloud#readme)

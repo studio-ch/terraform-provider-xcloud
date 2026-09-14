@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Build standalone preview archives and SHA-256 checksums without cloud access."""
+"""Build Terraform Registry archives, protocol manifest and SHA-256 checksums."""
 import argparse
 import hashlib
+import json
 import os
 from pathlib import Path
 import re
@@ -16,12 +17,18 @@ if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+
     parser.error("version must be a semantic version tag starting with v")
 root = Path(__file__).resolve().parents[1]
 out = root / "dist" / args.version
+manifest = json.loads((root / "terraform-registry-manifest.json").read_text())
+if manifest != {"version": 1, "metadata": {"protocol_versions": ["6.0"]}}:
+    raise SystemExit("Expected a protocol 6 Terraform Registry manifest")
 out.mkdir(parents=True, exist_ok=False)
-checksums = []
+prefix = f"terraform-provider-xcloud_{args.version[1:]}"
+manifest_path = out / f"{prefix}_manifest.json"
+manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+checksums = [f"{hashlib.sha256(manifest_path.read_bytes()).hexdigest()}  {manifest_path.name}\n"]
 with tempfile.TemporaryDirectory(prefix="xcloud-release-") as tmp:
     for system in ("darwin", "linux", "windows"):
         for arch in ("amd64", "arm64"):
-            name = "terraform-provider-xcloud" + (".exe" if system == "windows" else "")
+            name = f"terraform-provider-xcloud_{args.version}" + (".exe" if system == "windows" else "")
             binary = Path(tmp) / name
             env = {**os.environ, "GOWORK": "off", "CGO_ENABLED": "0", "GOOS": system, "GOARCH": arch}
             subprocess.run(["go", "build", "-trimpath", "-ldflags",
@@ -38,4 +45,4 @@ with tempfile.TemporaryDirectory(prefix="xcloud-release-") as tmp:
                 zip_file.write(root / "CHANGELOG.md", "CHANGELOG.md")
             checksums.append(f"{hashlib.sha256(archive.read_bytes()).hexdigest()}  {archive.name}\n")
             print(archive.name, flush=True)
-(out / "SHA256SUMS").write_text("".join(sorted(checksums)))
+(out / f"{prefix}_SHA256SUMS").write_text("".join(sorted(checksums)))

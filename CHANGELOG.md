@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.0-beta.2 — 2026-09-14
+
+- Add the protocol 6 Terraform Registry manifest and Registry-compatible binary,
+  checksum and signature filenames.
+- Sign release checksums with a dedicated RSA key, verified in CI before publication.
+- Document signature verification and the remaining Registry registration step.
+- Keep all nine resources and twenty data sources unchanged from beta.1.
+
+This is a signed evaluation preview prepared for Registry registration. It does
+not establish acceptance against a real cloud deployment. Beta.1 remains available
+with its original unsigned assets.
+
 ## v0.1.0-beta.1 — 2026-09-14
 
 First public evaluation release of the Xcloud Terraform provider, using the

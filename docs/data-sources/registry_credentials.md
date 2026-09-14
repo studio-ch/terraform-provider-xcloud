@@ -19,4 +19,4 @@ Read existing Xcloud registry_credentials through the public API. Lists reflect 
 | `source` | `string` | Read-only |  |
 | `username` | `string` | Read-only |  |
 
-[Provider setup and lifecycle details](../../README.md)
+[Provider setup and lifecycle details](https://github.com/studio-ch/terraform-provider-xcloud#readme)

@@ -22,4 +22,4 @@ The slug match is case-insensitive. The region must advertise the Xcloud service
 | `response_json` | `string` | Read-only | Complete public catalog DTO as JSON, including availability, pricing and other metadata exposed by the API. |
 | `slug` | `string` | Required | Exact catalog slug. |
 
-[Provider setup and lifecycle details](../../README.md)
+[Provider setup and lifecycle details](https://github.com/studio-ch/terraform-provider-xcloud#readme)

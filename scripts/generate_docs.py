@@ -27,7 +27,7 @@ def table(attrs):
             rows += ["", "### `" + k + "` fields", "", table(a["nested_type"]["attributes"])]
     return "\n".join(rows)
 
-index = "# Xcloud provider\n\nManage infrastructure through the public Cloud Console API. See the [installation guide](../README.md), [basic example](../examples/basic/main.tf), [catalog example](../examples/catalog/main.tf) and [feature audit](feature-audit.md).\n\n## Configuration\n\n" + table(schema["provider"]["block"]["attributes"]) + "\n"
+index = "# Xcloud provider\n\nManage infrastructure through the public Cloud Console API. See the [installation guide](https://github.com/studio-ch/terraform-provider-xcloud#readme), [basic example](https://github.com/studio-ch/terraform-provider-xcloud/blob/main/examples/basic/main.tf), [catalog example](https://github.com/studio-ch/terraform-provider-xcloud/blob/main/examples/catalog/main.tf) and [feature audit](https://github.com/studio-ch/terraform-provider-xcloud/blob/main/docs/feature-audit.md).\n\n## Example Usage\n\n```hcl\nterraform {\n  required_providers {\n    xcloud = {\n      source  = \"studio-ch/xcloud\"\n      version = \"0.1.0-beta.2\"\n    }\n  }\n}\n\nprovider \"xcloud\" {\n  api_url = \"https://api.cloud.flow.swiss\"\n}\n```\n\nSet `XCLOUD_API_TOKEN` to an organisation-scoped API key with read and write\nresource access. Preview versions require an exact version constraint.\nSee the installation guide for current Registry availability and local installation.\n\n## Configuration\n\n" + table(schema["provider"]["block"]["attributes"]) + "\n"
 for category, key, heading in [("resources", "resource_schemas", "Resources"), ("data-sources", "data_source_schemas", "Data sources")]:
     index += "\n## " + heading + "\n\n"
     for name, value in sorted(schema[key].items()):
@@ -35,10 +35,10 @@ for category, key, heading in [("resources", "resource_schemas", "Resources"), (
         if path.exists():
             content = path.read_text()
             before, _, after = content.partition("## Schema\n")
-            tail = "\n## Import" + after.split("\n## Import", 1)[1] if "\n## Import" in after else "\n[Provider setup and lifecycle details](../../README.md)\n"
+            tail = "\n## Import" + after.split("\n## Import", 1)[1] if "\n## Import" in after else "\n[Provider setup and lifecycle details](https://github.com/studio-ch/terraform-provider-xcloud#readme)\n"
         else:
             before = "# `" + name + "`\n\n" + value["block"].get("description", "") + "\n\n"
-            tail = "\n[Provider setup and lifecycle details](../../README.md)\n"
+            tail = "\n[Provider setup and lifecycle details](https://github.com/studio-ch/terraform-provider-xcloud#readme)\n"
         path.write_text(before + "## Schema\n\n" + table(value["block"]["attributes"]) + "\n" + tail)
         index += "- [`" + name + "`](" + category + "/" + path.name + ")\n"
 (root / "docs/index.md").write_text(index)

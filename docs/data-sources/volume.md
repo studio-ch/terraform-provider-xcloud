@@ -14,4 +14,4 @@ Read existing Xcloud volumes through the public API. Lists reflect API visibilit
 | `size_gib` | `number` | Read-only |  |
 | `state` | `string` | Read-only |  |
 
-[Provider setup and lifecycle details](../../README.md)
+[Provider setup and lifecycle details](https://github.com/studio-ch/terraform-provider-xcloud#readme)

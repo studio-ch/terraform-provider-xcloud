@@ -1,6 +1,27 @@
 # Xcloud provider
 
-Manage infrastructure through the public Cloud Console API. See the [installation guide](../README.md), [basic example](../examples/basic/main.tf), [catalog example](../examples/catalog/main.tf) and [feature audit](feature-audit.md).
+Manage infrastructure through the public Cloud Console API. See the [installation guide](https://github.com/studio-ch/terraform-provider-xcloud#readme), [basic example](https://github.com/studio-ch/terraform-provider-xcloud/blob/main/examples/basic/main.tf), [catalog example](https://github.com/studio-ch/terraform-provider-xcloud/blob/main/examples/catalog/main.tf) and [feature audit](https://github.com/studio-ch/terraform-provider-xcloud/blob/main/docs/feature-audit.md).
+
+## Example Usage
+
+```hcl
+terraform {
+  required_providers {
+    xcloud = {
+      source  = "studio-ch/xcloud"
+      version = "0.1.0-beta.2"
+    }
+  }
+}
+
+provider "xcloud" {
+  api_url = "https://api.cloud.flow.swiss"
+}
+```
+
+Set `XCLOUD_API_TOKEN` to an organisation-scoped API key with read and write
+resource access. Preview versions require an exact version constraint.
+See the installation guide for current Registry availability and local installation.
 
 ## Configuration
 

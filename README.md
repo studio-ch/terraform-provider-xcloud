@@ -36,14 +36,29 @@ See [`docs/`](./docs/index.md) for the schema and examples.
 
 Download the archive for your workstation from
 [GitHub Releases](https://github.com/studio-ch/terraform-provider-xcloud/releases).
-The first preview is `v0.1.0-beta.1`. Builds are available for macOS, Linux and
+The current signed preview is `v0.1.0-beta.2`. Builds are available for macOS, Linux and
 Windows on AMD64 and ARM64. Extract the archive into a dedicated directory and
 point `dev_overrides` below to that directory. The archive contains
-`terraform-provider-xcloud` (`terraform-provider-xcloud.exe` on Windows).
+`terraform-provider-xcloud_v0.1.0-beta.2`
+(`terraform-provider-xcloud_v0.1.0-beta.2.exe` on Windows).
 
-Verify the archive against the release's `SHA256SUMS` file before extracting it:
+Verify the archive against the release's
+`terraform-provider-xcloud_0.1.0-beta.2_SHA256SUMS` file before extracting it:
 `shasum -a 256 <archive.zip>` on macOS or `sha256sum <archive.zip>` on Linux.
-Checksums detect download corruption; these preview binaries are not signed.
+Starting with `v0.1.0-beta.2`, the checksums have a detached GPG signature.
+Verify that signature with the [public release key](keys/xcloud-release-signing.asc)
+before trusting the checksums. Confirm that the key fingerprint matches
+the following value before importing it:
+`1B4B04AEE0AB49EB8D24410E4F5D61DF38144775`.
+
+```sh
+curl -fsSLo xcloud-release-signing.asc https://raw.githubusercontent.com/studio-ch/terraform-provider-xcloud/main/keys/xcloud-release-signing.asc
+gpg --show-keys --fingerprint xcloud-release-signing.asc
+gpg --import xcloud-release-signing.asc
+gpg --verify terraform-provider-xcloud_0.1.0-beta.2_SHA256SUMS.sig terraform-provider-xcloud_0.1.0-beta.2_SHA256SUMS
+```
+
+The earlier `v0.1.0-beta.1` download remains unsigned.
 No Go installation is needed when using a downloaded binary.
 
 ## Build and use locally
@@ -198,8 +213,8 @@ GitHub Actions builds the provider, checks Go and Terraform formatting, runs
 `go vet`, and executes the full test suite with the race detector on pushes and
 pull requests. No monorepo or Go workspace is required.
 
-Registry publication, release signing and a real deployment acceptance
-run remain separate release steps. Building and testing do not create cloud resources.
+The signed release is prepared for Terraform Registry registration. Registry
+registration and a real deployment acceptance run remain pending. Building and testing do not create cloud resources.
 
 The implemented surface covers infrastructure lifecycle. Guest command execution,
 consoles, image push/build jobs, metrics, maintenance actions and billing/admin operations are not

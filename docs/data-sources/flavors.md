@@ -23,4 +23,4 @@ Read existing Xcloud flavors through the public API. Lists reflect API visibilit
 | `response_json` | `string` | Read-only |  |
 | `slug` | `string` | Read-only |  |
 
-[Provider setup and lifecycle details](../../README.md)
+[Provider setup and lifecycle details](https://github.com/studio-ch/terraform-provider-xcloud#readme)

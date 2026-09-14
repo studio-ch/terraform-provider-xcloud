@@ -47,4 +47,4 @@ terraform import xcloud_network.existing 11111111-1111-4111-8111-111111111111/pr
 
 Define the matching resource block before import.
 
-[Provider setup and lifecycle details](../../README.md)
+[Provider setup and lifecycle details](https://github.com/studio-ch/terraform-provider-xcloud#readme)

@@ -29,4 +29,4 @@ terraform import xcloud_image.existing 11111111-1111-4111-8111-111111111111/cust
 
 Define the matching resource block before import. Passwords and registration authentication cannot be reconstructed from the API.
 
-[Provider setup and lifecycle details](../../README.md)
+[Provider setup and lifecycle details](https://github.com/studio-ch/terraform-provider-xcloud#readme)
