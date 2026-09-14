@@ -1,0 +1,10 @@
+--- FAIL: TestAuditRealEmpty202Lifecycle (0.00s)
+    --- FAIL: TestAuditRealEmpty202Lifecycle/start (0.00s)
+        audit_verification_temp_test.go:20: valid empty 202 must lead to polling, got invalid JSON from public API (request-id: ): unexpected end of JSON input; GET polls=0
+    --- FAIL: TestAuditRealEmpty202Lifecycle/stop (0.00s)
+        audit_verification_temp_test.go:20: valid empty 202 must lead to polling, got invalid JSON from public API (request-id: ): unexpected end of JSON input; GET polls=0
+--- FAIL: TestAuditInstanceDeletionPreservesSeparateElasticIP (0.00s)
+    audit_verification_temp_test.go:30: instance deletion must not release separately managed Elastic IPs: releaseElasticIps="" (API defaults to true)
+FAIL
+FAIL	github.com/studio-ch/terraform-provider-xcloud/internal/provider	0.467s
+FAIL
