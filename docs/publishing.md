@@ -3,6 +3,23 @@
 The public repository is `studio-ch/terraform-provider-xcloud`; the intended
 Terraform Registry address is `studio-ch/xcloud`.
 
+## Registration status (2026-09-14)
+
+The `studio-ch` public namespace is claimed by the HCP Terraform organization
+`flow-swiss`. The Terraform Cloud GitHub App has access to the provider repository,
+and the namespace lists release-signing key `4F5D61DF38144775` (the fingerprint below).
+
+The signed GitHub release `v0.1.0-beta.2` is published and its downloaded artifacts
+have passed signature, checksum and local Terraform loading checks. Public Registry
+publication is still pending: HCP intermittently fails to load the namespace's
+artifact list with "An unexpected error occurred. Please try again later."
+The public versions endpoint still returns `provider not found`.
+
+Resume from [the existing namespace](https://app.terraform.io/app/flow-swiss/registry/public-namespaces/studio-ch),
+using **Publish → Provider** once that page loads. The namespace and signing key
+are already configured; do not recreate them. Complete the fresh Registry
+installation check below before changing customer-facing availability claims.
+
 ## Release assets
 
 Tags trigger `.github/workflows/release.yml`, which tests the provider, builds six
