@@ -236,7 +236,7 @@ func redactRequestSecrets(detail string, data []byte) string {
 		switch x := v.(type) {
 		case map[string]any:
 			for k, v := range x {
-				if strings.Contains(strings.ToLower(k), "password") || strings.Contains(strings.ToLower(k), "token") {
+				if strings.Contains(strings.ToLower(k), "password") || strings.Contains(strings.ToLower(k), "token") || strings.EqualFold(k, "userData") {
 					if secret, ok := v.(string); ok && secret != "" {
 						detail = strings.ReplaceAll(detail, secret, "[REDACTED]")
 						quoted, _ := json.Marshal(secret)

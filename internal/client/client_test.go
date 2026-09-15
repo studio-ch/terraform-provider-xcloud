@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -215,5 +216,17 @@ func TestInstanceCreateTransportRetryUsesSameKey(t *testing.T) {
 	result, err := c.Send(context.Background(), "POST", "/v1/xcloud/instances", nil, Object{"name": "test"})
 	if err != nil || calls != 2 || result["id"] != "original" {
 		t.Fatalf("create replay failed: calls=%d result=%v err=%v", calls, result, err)
+	}
+}
+
+func TestStartupConfigErrorRedaction(t *testing.T) {
+	document := "#cloud-config\n# private document\nusers: []\n"
+	body, _ := json.Marshal(Object{"startupConfig": Object{"format": "cloud-init", "userData": document}})
+	quoted, _ := json.Marshal(document)
+	for _, echo := range []string{document, string(quoted[1 : len(quoted)-1])} {
+		got := redactRequestSecrets("rejected: "+echo, body)
+		if got != "rejected: [REDACTED]" {
+			t.Fatal("startup document leaked into diagnostic")
+		}
 	}
 }

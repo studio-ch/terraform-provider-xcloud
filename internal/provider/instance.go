@@ -2,12 +2,14 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"regexp"
 	"sort"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -36,6 +38,8 @@ func newInstanceResource() resource.Resource {
 }
 
 type instanceModel struct {
+	UserData           types.String `tfsdk:"user_data"`
+	UserDataFormat     types.String `tfsdk:"user_data_format"`
 	Tags               types.Map    `tfsdk:"tags"`
 	AdminPassword      types.String `tfsdk:"admin_password"`
 	ShutdownMode       types.String `tfsdk:"shutdown_mode"`
@@ -63,6 +67,13 @@ type instanceModel struct {
 	ExpiresAt          types.String `tfsdk:"expires_at"`
 }
 
+func (r *instanceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	r.baseResource.ImportState(ctx, req, resp)
+	if !resp.Diagnostics.HasError() {
+		resp.Diagnostics.AddWarning("Startup configuration cannot be imported", "The API never returns user_data. Imported user_data and user_data_format remain null. If either is configured, the next plan replaces this VM. To keep the existing VM, omit both arguments and review the plan before applying.")
+	}
+}
+
 func (r *instanceResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	immutable := func(v, desc string) schema.StringAttribute {
 		return schema.StringAttribute{Optional: true, Computed: true, Default: stringdefault.StaticString(v), Description: desc, PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}}
@@ -76,7 +87,7 @@ func (r *instanceResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 	set := func(desc string) schema.SetAttribute {
 		return schema.SetAttribute{Optional: true, Computed: true, ElementType: types.StringType, Default: setdefault.StaticValue(types.SetValueMust(types.StringType, nil)), Description: desc}
 	}
-	platform := immutable("macos", "Guest platform: macos or linux. Linux requires at least one SSH key.")
+	platform := immutable("macos", "Guest platform: macos or linux. Linux requires SSH keys or a complete user_data configuration.")
 	platform.Validators = []validator.String{stringvalidator.OneOf("macos", "linux")}
 	resp.Schema = schema.Schema{Description: "An Xcloud VM. Create, resize and delete wait for completion. Sizing changes cause downtime. Import with the instance UUID.", Attributes: map[string]schema.Attribute{
 		"id": idAttribute(), "region_id": uuidAttribute("Region UUID.", true), "name": requiredString("Display name.", false), "image_ref": requiredString("Image name or OCI reference accepted by the public API.", true),
@@ -85,9 +96,12 @@ func (r *instanceResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 		"flavor_slug":         schema.StringAttribute{Optional: true, Computed: true, Description: "Catalog flavor slug. CPU, memory and disk must match the flavor; this is not a sizing resolver."},
 		"hardware_generation": schema.StringAttribute{Optional: true, Computed: true, Description: "Hardware generation constraint. Resolved from the flavor when flavor_slug is supplied.", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown(), stringplanmodifier.RequiresReplaceIfConfigured()}},
 		"display_width":       dimension(1920, 640, 7680), "display_height": dimension(1080, 480, 4320),
-		"admin_username": schema.StringAttribute{Optional: true, Computed: true, Description: "Guest admin user, defaulted by the image/API.", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown(), stringplanmodifier.RequiresReplaceIfConfigured()}},
+		"admin_username": schema.StringAttribute{Optional: true, Computed: true, Description: "Guest admin user, defaulted by the image/API. With user_data, this is connection metadata only; define the user in your document.", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown(), stringplanmodifier.RequiresReplaceIfConfigured()}},
 		"ssh_key_ids":    set("SSH key UUIDs to inject into the guest."), "security_groups": set("Names of security groups in the same region."),
-		"tags":               schema.MapAttribute{Optional: true, Computed: true, ElementType: types.StringType, Default: mapdefault.StaticValue(types.MapValueMust(types.StringType, nil)), Description: "Metadata tags. Keys: lowercase letters, digits, dots, underscores, slashes, hyphens; at most 20 tags."},
+		"tags":             schema.MapAttribute{Optional: true, Computed: true, ElementType: types.StringType, Default: mapdefault.StaticValue(types.MapValueMust(types.StringType, nil)), Description: "Metadata tags. Keys: lowercase letters, digits, dots, underscores, slashes, hyphens; at most 20 tags."},
+		"user_data":        schema.StringAttribute{Optional: true, Sensitive: true, Description: "Complete first-boot configuration, using the Terraform file function. Maximum 64 KiB UTF-8. Replaces automatic SSH setup: define users and keys here and omit ssh_key_ids. Encrypted by the API, but stored in Terraform state; secure your state backend. Changes (including removal) replace the VM; imported user-data cannot be recovered.", PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}},
+		"user_data_format": schema.StringAttribute{Optional: true, Description: "cloud-init (YAML starting with #cloud-config) or ignition (JSON for CoreOS). Required together with user_data. Changes replace the VM.", Validators: []validator.String{stringvalidator.OneOf("cloud-init", "ignition")}, PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}},
+
 		"admin_password":     schema.StringAttribute{Optional: true, Sensitive: true, Description: "macOS admin password (8–128 printable ASCII characters). Stored in Terraform state. Removing this argument stops managing the password; it does not clear the guest password.", Validators: []validator.String{stringvalidator.LengthBetween(8, 128), stringvalidator.RegexMatches(regexp.MustCompile(`^[\x20-\x7E]+$`), "must contain printable ASCII only")}},
 		"shutdown_mode":      schema.StringAttribute{Optional: true, Computed: true, Default: stringdefault.StaticString("graceful"), Description: "How to stop before resize or when power_state is stopped: graceful (ACPI shutdown, default) or hard (immediate stop).", Validators: []validator.String{stringvalidator.OneOf("graceful", "hard")}},
 		"boot_into_recovery": schema.BoolAttribute{Optional: true, Computed: true, Default: booldefault.StaticBool(false), Description: "macOS recovery boot. Changing this setting may restart the VM. Requires an API exposing bootIntoRecovery in the instance DTO."},
@@ -152,6 +166,9 @@ func (m instanceModel) createBody() client.Object {
 	b := client.Object{"regionId": m.RegionID.ValueString(), "name": m.Name.ValueString(), "imageRef": m.ImageRef.ValueString(), "networkRef": m.NetworkRef.ValueString(), "platform": m.Platform.ValueString(), "cpuCores": m.CPU.ValueInt64(), "memoryGib": m.Memory.ValueInt64(), "diskGib": m.Disk.ValueInt64(), "displayWidth": m.DisplayWidth.ValueInt64(), "displayHeight": m.DisplayHeight.ValueInt64(), "sshKeyIds": setWire(m.SSHKeys), "securityGroups": setWire(m.SecurityGroups)}
 	optionalString(b, "flavorSlug", m.Flavor)
 	optionalString(b, "hardwareGeneration", m.HardwareGeneration)
+	if !m.UserData.IsNull() && !m.UserData.IsUnknown() {
+		b["startupConfig"] = client.Object{"format": m.UserDataFormat.ValueString(), "userData": m.UserData.ValueString()}
+	}
 	optionalString(b, "adminUsername", m.AdminUsername)
 	optionalString(b, "adminPassword", m.AdminPassword)
 	optionalInt(b, "lifetimeSeconds", m.Lifetime)
@@ -391,6 +408,36 @@ func (r *instanceResource) ValidateConfig(ctx context.Context, req resource.Vali
 	if m.Platform.ValueString() == "linux" && (!m.AdminPassword.IsNull() || m.Recovery.ValueBool()) {
 		resp.Diagnostics.AddError("macOS-only configuration", "admin_password and recovery boot are not supported for Linux guests.")
 	}
+	if !m.UserData.IsUnknown() && !m.UserDataFormat.IsUnknown() && m.UserData.IsNull() != m.UserDataFormat.IsNull() {
+		resp.Diagnostics.AddError("Incomplete startup configuration", "Set user_data and user_data_format together.")
+	}
+	if !m.UserData.IsNull() {
+		if !m.Platform.IsUnknown() && m.Platform.ValueString() != "linux" {
+			resp.Diagnostics.AddError("Linux-only configuration", "user_data requires platform = linux.")
+		}
+		if !m.SSHKeys.IsUnknown() && len(m.SSHKeys.Elements()) > 0 {
+			resp.Diagnostics.AddError("Conflicting SSH configuration", "user_data replaces automatic SSH setup. Define keys in the document and omit ssh_key_ids.")
+		}
+		if !m.UserData.IsUnknown() {
+			data := m.UserData.ValueString()
+			if len(data) > 65536 || strings.TrimSpace(data) == "" || !utf8.ValidString(data) {
+				resp.Diagnostics.AddError("Invalid startup configuration", "user_data must be non-empty UTF-8, maximum 64 KiB.")
+			}
+			if m.UserDataFormat.ValueString() == "ignition" {
+				var envelope struct {
+					Ignition struct {
+						Version string `json:"version"`
+					} `json:"ignition"`
+				}
+				if json.Unmarshal([]byte(data), &envelope) != nil || !regexp.MustCompile(`^3\.\d+\.\d+$`).MatchString(envelope.Ignition.Version) {
+					resp.Diagnostics.AddError("Invalid Ignition configuration", "Use JSON with ignition.version 3.x. Convert Butane YAML first.")
+				}
+			}
+			if m.UserDataFormat.ValueString() == "cloud-init" && !strings.HasPrefix(strings.TrimSpace(data), "#cloud-config\n") && !strings.HasPrefix(strings.TrimSpace(data), "#cloud-config\r\n") {
+				resp.Diagnostics.AddError("Invalid cloud-init configuration", "The YAML document must start with #cloud-config.")
+			}
+		}
+	}
 	if !m.Tags.IsNull() && !m.Tags.IsUnknown() {
 		if len(m.Tags.Elements()) > 20 {
 			resp.Diagnostics.AddError("Too many tags", "At most 20 tags are allowed.")
@@ -407,16 +454,24 @@ func (r *instanceResource) ValidateConfig(ctx context.Context, req resource.Vali
 			}
 		}
 	}
-	if m.Platform.ValueString() == "linux" && !m.SSHKeys.IsUnknown() && len(m.SSHKeys.Elements()) == 0 {
-		resp.Diagnostics.AddError("Linux requires SSH access", "Set at least one ssh_key_ids entry for a Linux instance.")
-	}
 }
 func (r *instanceResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() || req.State.Raw.IsNull() {
+	if req.Plan.Raw.IsNull() {
 		return
 	}
 	var plan, old instanceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if req.State.Raw.IsNull() {
+		// Creation needs an access configuration. Imported guests may manage
+		// access themselves: their write-only user_data cannot be recovered.
+		if plan.Platform.ValueString() == "linux" && plan.UserData.IsNull() && !plan.SSHKeys.IsUnknown() && len(plan.SSHKeys.Elements()) == 0 {
+			resp.Diagnostics.AddError("Linux requires SSH access", "Set ssh_key_ids or a complete user_data configuration when creating a Linux instance.")
+		}
+		return
+	}
 	resp.Diagnostics.Append(req.State.Get(ctx, &old)...)
 	if resp.Diagnostics.HasError() {
 		return

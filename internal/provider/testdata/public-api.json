@@ -1434,6 +1434,28 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "startupConfig": {
+                    "type": "object",
+                    "properties": {
+                      "format": {
+                        "type": "string",
+                        "enum": [
+                          "cloud-init",
+                          "ignition"
+                        ]
+                      },
+                      "userData": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 65536,
+                        "description": "Complete first-boot configuration, sent unchanged. cloud-init requires #cloud-config YAML; Ignition requires JSON with ignition.version 3.x. Maximum 64 KiB UTF-8. Replaces automatic SSH provisioning: include users and SSH keys in this document. Write-only; encrypted at rest."
+                      }
+                    },
+                    "required": [
+                      "format",
+                      "userData"
+                    ]
+                  },
                   "regionId": {
                     "type": "string",
                     "format": "uuid"
@@ -3010,7 +3032,7 @@
           "xcloud-instances"
         ],
         "summary": "Replace the SSH key set for an Xcloud instance",
-        "description": "Replaces the junction set and resets `ssh_keys_provisioned_at` so the worker re-injects the authorized_keys file on the next ssh-inject tick.",
+        "description": "Replaces the junction set and resets `ssh_keys_provisioned_at` so the worker re-injects the authorized_keys file on the next ssh-inject tick. Instances created with startupConfig reject this operation (422); manage keys inside the guest.",
         "parameters": [
           {
             "schema": {
@@ -3390,6 +3412,41 @@
           },
           "404": {
             "description": "Instance not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "SSH keys are managed by the custom startup configuration",
             "content": {
               "application/json": {
                 "schema": {
@@ -13018,6 +13075,41 @@
               }
             }
           },
+          "409": {
+            "description": "Elastic IP is already attached to another instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
           "422": {
             "description": "Invalid target",
             "content": {
@@ -13055,41 +13147,6 @@
           },
           "502": {
             "description": "Xcloud failure",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "format": "uri"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer"
-                    },
-                    "detail": {
-                      "type": "string"
-                    },
-                    "instance": {
-                      "type": "string"
-                    },
-                    "code": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "title",
-                    "status"
-                  ]
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Elastic IP is already attached to another instance",
             "content": {
               "application/json": {
                 "schema": {

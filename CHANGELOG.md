@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.1.0-beta.3 — 2026-09-15
+
+- Add sensitive `user_data` and `user_data_format` for Linux cloud-init YAML and
+  CoreOS Ignition JSON, passed unchanged to the Cloud Console API.
+- Validate size, format and conflicts with automatic SSH setup. Document changes
+  and removal replace the VM; API reads never return the document.
+- Warn during instance import that startup data cannot be recovered and a
+  configured document plans replacement. Keep imported guests manageable without
+  inventing an SSH key configuration.
+- Redact echoed startup documents from API error diagnostics.
+- Refresh generated resource documentation and the public API contract.
+
+Requires Cloud Console v0.12.73 or later. The catalogued ALP2 CoreOS image was
+verified with a real Ignition first boot; provider lifecycle tests use a mock API.
+Terraform retains sensitive startup documents in state; secure the state backend.
+
 ## v0.1.0-beta.2 — 2026-09-14
 
 - Add the protocol 6 Terraform Registry manifest and Registry-compatible binary,
