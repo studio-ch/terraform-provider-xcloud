@@ -25,6 +25,18 @@ The unsigned legacy `v0.1.0-beta.1` could not be imported because it lacks the
 required checksum/signature files. It is retained unchanged on GitHub; the signed
 `v0.1.0-beta.2` is the first Registry release.
 
+## Subsequent releases
+
+New tags do not reach the Registry by themselves: the repository has no Registry
+webhook, so `v0.1.0-beta.3` was never indexed. After the release workflow has
+published a version on GitHub, sign in to the Registry with an account that belongs
+to the HCP organization `flow-swiss` (a conventional browser, see above), open
+[studio-ch/xcloud](https://registry.terraform.io/providers/studio-ch/xcloud) and run
+**Manage Provider → Resync Provider**. Then check
+`https://registry.terraform.io/v1/providers/studio-ch/xcloud/versions` and a fresh
+`terraform init` with the new exact version. `0.1.0-beta.4` was indexed this way on
+2 November 2026.
+
 ## Release assets
 
 Tags trigger `.github/workflows/release.yml`, which tests the provider, builds six
