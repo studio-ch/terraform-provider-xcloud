@@ -50,6 +50,7 @@ func inventoryDefinitions() []inventoryDefinition {
 		{"region", "regions", "/v1/regions", "slug", false, fields("id", "id", "slug", "slug", "name", "name", "architecture", "architecture")},
 		{"flavor", "flavors", "/v1/xcloud/flavors", "slug", true, fields("id", "id", "slug", "slug", "label", "label", "platform", "platform", "hardware_generation", "hardwareGeneration")},
 		{"image", "images", imagesPath, "name", true, fields("id", "name", "name", "name", "region_id", "regionId", "source", "source", "oci_reference", "ociReference")},
+		{"snapshot", "snapshots", snapshotsPath, "id", true, fields("id", "id", "name", "name", "description", "description", "region_id", "regionId", "status", "status", "platform", "platform", "image_ref", "imageRef", "source_instance_id", "sourceInstanceId", "source_instance_name", "sourceInstanceName", "capture_time", "captureTime", "created_at", "createdAt")},
 	}
 	for i := range defs {
 		d := &defs[i]
@@ -60,6 +61,13 @@ func inventoryDefinitions() []inventoryDefinition {
 		}
 		if d.kind == "volume" {
 			d.fields["size_gib"] = inventoryField{"sizeGib", types.Int64Type}
+		}
+		if d.kind == "snapshot" {
+			for _, pair := range [][2]string{{"disk_gib", "diskGib"}, {"min_cpu_cores", "minCpuCores"}, {"min_memory_gib", "minMemoryGib"}} {
+				d.fields[pair[0]] = inventoryField{pair[1], types.Int64Type}
+			}
+			d.fields["restorable"] = inventoryField{"restorable", types.BoolType}
+			d.fields["taken_while_running"] = inventoryField{"takenWhileRunning", types.BoolType}
 		}
 		if d.kind == "network" || d.kind == "image" {
 			d.fields["labels"] = inventoryField{"labels", types.MapType{ElemType: types.StringType}}

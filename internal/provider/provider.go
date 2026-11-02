@@ -88,7 +88,7 @@ func (p *xcloudProvider) Configure(ctx context.Context, req provider.ConfigureRe
 	resp.DataSourceData = c
 }
 func (p *xcloudProvider) Resources(context.Context) []func() resource.Resource {
-	return []func() resource.Resource{newInstanceResource, newNetworkResource, newSecurityGroupResource, newVolumeResource, newVolumeAttachmentResource, newElasticIPResource, newSSHKeyResource, newImageResource, newRegistryCredentialResource}
+	return []func() resource.Resource{newInstanceResource, newNetworkResource, newSecurityGroupResource, newVolumeResource, newVolumeAttachmentResource, newElasticIPResource, newSSHKeyResource, newImageResource, newRegistryCredentialResource, newSnapshotResource}
 }
 func (p *xcloudProvider) DataSources(context.Context) []func() datasource.DataSource {
 	return append([]func() datasource.DataSource{newRegionDataSource, newFlavorDataSource, newImageDataSource}, newInventoryDataSources()...)

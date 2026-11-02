@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.1.0-beta.4 — 2026-11-02
+
+- Add the `xcloud_snapshot` resource: snapshot an instance's boot disk and firmware
+  settings, wait until it is ready (a failed snapshot errors with the API's reason
+  and stays in state as tainted), rename and edit the description in place, and
+  wait until xcloud has released it on delete. Import by snapshot UUID.
+- Add `source_snapshot_id` to `xcloud_instance` to create an instance from a
+  snapshot. `image_ref` becomes optional and exactly one of the two must be set;
+  with a snapshot, `user_data` and `admin_username` are rejected and the Linux SSH
+  key requirement does not apply. A later deleted snapshot does not plan a replacement.
+- Add the `xcloud_snapshot` and `xcloud_snapshots` data sources.
+- Add `guest_platform` to the flavor data sources for presets that support both
+  macOS and Linux; `supported_platforms` lists every allowed guest OS.
+- Align network configuration with the Cloud Console API.
+- Refresh generated documentation, examples and the public API contract.
+
+Requires Cloud Console v0.12.124 or later for snapshots. Provider lifecycle tests use
+a mock API; snapshot create, restore and clone were accepted against a real stage
+deployment through the Cloud Console itself, not through this provider.
+
 ## v0.1.0-beta.3 — 2026-09-15
 
 - Add sensitive `user_data` and `user_data_format` for Linux cloud-init YAML and

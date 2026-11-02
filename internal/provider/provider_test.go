@@ -27,6 +27,7 @@ const testInstance = "22222222-2222-4222-8222-222222222222"
 const testVolume = "33333333-3333-4333-8333-333333333333"
 const testSSHKey = "44444444-4444-4444-8444-444444444444"
 const testIP = "55555555-5555-4555-8555-555555555555"
+const testSnapshot = "77777777-7777-4777-8777-777777777777"
 
 type mockAPI struct {
 	mu                 sync.Mutex
@@ -39,6 +40,7 @@ type mockAPI struct {
 	instanceGeneration int
 	dynamicIDs         bool
 	largeFlavor        bool
+	failSnapshot       bool
 }
 
 func newMockAPI(t *testing.T) (*mockAPI, *httptest.Server) {
@@ -101,6 +103,9 @@ func (m *mockAPI) serve(w http.ResponseWriter, r *http.Request) {
 	if err := checkPublicRequest(m.contract, r, body); err != nil {
 		m.t.Error(err)
 		http.Error(w, `{"detail":"public API contract mismatch"}`, 400)
+		return
+	}
+	if m.serveSnapshot(w, r, body, send) {
 		return
 	}
 	// Instance attachment subroutes.
@@ -240,6 +245,12 @@ func (m *mockAPI) serve(w http.ResponseWriter, r *http.Request) {
 				}
 				body["bootIntoRecovery"] = false
 				body["tags"] = []any{}
+				// The API reports the snapshot's source image for a snapshot-based VM.
+				snapshotID, _ := body["sourceSnapshotId"].(string)
+				body["sourceSnapshotId"] = nil
+				if snap := m.rows[snapshotsPath+"/"+snapshotID]; snap != nil {
+					body["sourceSnapshotId"], body["imageRef"] = snapshotID, snap["imageRef"]
+				}
 				delete(body, "adminPassword")
 			case volumesPath:
 				body["state"] = "detached"
@@ -268,14 +279,20 @@ func (m *mockAPI) serve(w http.ResponseWriter, r *http.Request) {
 				if spec == nil {
 					spec = map[string]any{}
 				}
-				for _, k := range []string{"mode", "cidr", "gateway", "dhcp"} {
-					if v, ok := body[k]; ok {
-						spec[k] = v
-					} else {
-						body[k] = spec[k]
-					}
+				if v, ok := body["cidr"]; ok {
+					spec["subnet"] = v
 				}
-				spec["serverDefault"] = "default"
+				if v, ok := body["gateway"]; ok {
+					spec["gateway"] = v
+				}
+				if v, ok := body["dhcp"]; ok {
+					spec["dhcp"] = v
+				}
+				body["cidr"] = spec["subnet"]
+				body["gateway"] = spec["gateway"]
+				body["mode"] = nil
+				body["dhcpRange"] = spec["dhcp"]
+				body["dhcp"] = spec["dhcp"] != nil
 				body["spec"] = spec
 			}
 			m.rows[p+"/"+id] = body
@@ -302,6 +319,27 @@ func (m *mockAPI) serve(w http.ResponseWriter, r *http.Request) {
 		}
 		send(row)
 	case "PATCH":
+		if strings.HasPrefix(p, networksPath+"/") {
+			spec := row["spec"].(map[string]any)
+			for _, k := range []string{"subnet", "gateway", "dhcp"} {
+				if v, ok := body[k]; ok {
+					if v == nil {
+						delete(spec, k)
+					} else {
+						spec[k] = v
+					}
+				}
+			}
+			row["cidr"] = spec["subnet"]
+			row["gateway"] = spec["gateway"]
+			row["dhcpRange"] = spec["dhcp"]
+			row["dhcp"] = spec["dhcp"] != nil
+			if v, ok := body["labels"]; ok {
+				row["labels"] = v
+			}
+			send(row)
+			return
+		}
 		if strings.HasPrefix(p, imagesPath+"/") {
 			labels := body["labels"].(map[string]any)
 			labels["source"] = "studio-cp-register"
@@ -349,6 +387,69 @@ func (m *mockAPI) serve(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"detail":"unsupported route"}`, 404)
 	}
 }
+
+// serveSnapshot mocks the snapshot routes: a new snapshot turns ready on
+// its first read, a deleted one disappears on its first read.
+func (m *mockAPI) serveSnapshot(w http.ResponseWriter, r *http.Request, body map[string]any, send func(any)) bool {
+	p := r.URL.Path
+	if r.Method == "POST" && strings.HasPrefix(p, instancesPath+"/") && strings.HasSuffix(p, "/snapshots") {
+		instance := m.rows[strings.TrimSuffix(p, "/snapshots")]
+		if instance == nil {
+			http.Error(w, `{"detail":"instance missing"}`, 404)
+			return true
+		}
+		name, ok := body["name"].(string)
+		if !ok {
+			name = fmt.Sprint(instance["name"], " 2026-09-14T00:00:00Z")
+		}
+		row := map[string]any{"id": testSnapshot, "tenantId": testRegion, "regionId": instance["regionId"], "regionSlug": "ZRH1", "name": name, "description": body["description"], "xcloudName": "s-12345678", "status": "creating", "lastError": nil, "sourceInstanceId": instance["id"], "sourceInstanceName": instance["name"], "restorable": true, "platform": instance["platform"], "imageRef": instance["imageRef"], "diskGib": instance["diskGib"], "minCpuCores": nil, "minMemoryGib": nil, "takenWhileRunning": nil, "captureTime": nil, "readyAt": nil, "createdAt": "2026-09-14T00:00:00Z"}
+		m.rows[snapshotsPath+"/"+testSnapshot] = row
+		w.WriteHeader(201)
+		send(row)
+		return true
+	}
+	if p == snapshotsPath && r.Method == "GET" {
+		rows := []any{}
+		for key, row := range m.rows {
+			if strings.HasPrefix(key, snapshotsPath+"/") && row["status"] != "deleting" {
+				rows = append(rows, row)
+			}
+		}
+		send(map[string]any{"data": rows})
+		return true
+	}
+	if !strings.HasPrefix(p, snapshotsPath+"/") {
+		return false
+	}
+	row := m.rows[p]
+	if row == nil || (r.Method == "GET" && row["status"] == "deleting") {
+		delete(m.rows, p)
+		http.Error(w, `{"detail":"snapshot not found"}`, 404)
+		return true
+	}
+	switch r.Method {
+	case "GET":
+		if row["status"] == "creating" {
+			row["status"] = "ready"
+			row["minCpuCores"], row["minMemoryGib"], row["takenWhileRunning"] = 2, 4, true
+			row["captureTime"], row["readyAt"] = "2026-09-14T00:01:00Z", "2026-09-14T00:02:00Z"
+			if m.failSnapshot {
+				row["status"], row["lastError"] = "failed", "disk busy"
+			}
+		}
+	case "PATCH":
+		for _, k := range []string{"name", "description"} {
+			if v, ok := body[k]; ok {
+				row[k] = v
+			}
+		}
+	case "DELETE":
+		row["status"] = "deleting"
+		w.WriteHeader(202)
+	}
+	send(row)
+	return true
+}
 func factories() map[string]func() (tfprotov6.ProviderServer, error) {
 	return map[string]func() (tfprotov6.ProviderServer, error){"xcloud": providerserver.NewProtocol6WithError(New("test")())}
 }
@@ -363,7 +464,7 @@ func TestProviderSchema(t *testing.T) {
 			t.Fatalf("%s: %s", d.Summary, d.Detail)
 		}
 	}
-	if len(resp.ResourceSchemas) != 9 || len(resp.DataSourceSchemas) != 20 {
+	if len(resp.ResourceSchemas) != 10 || len(resp.DataSourceSchemas) != 22 {
 		t.Fatalf("unexpected schema counts: %d/%d", len(resp.ResourceSchemas), len(resp.DataSourceSchemas))
 	}
 }
@@ -379,6 +480,7 @@ data "xcloud_region" "test" { slug = "zrh1" }
 data "xcloud_flavor" "test" {
  region_id = data.xcloud_region.test.id
  slug = "test"
+ guest_platform = "linux"
 }
 data "xcloud_image" "test" {
  region_id = data.xcloud_region.test.id
@@ -387,10 +489,11 @@ data "xcloud_image" "test" {
 resource "xcloud_network" "test" {
  region_id = data.xcloud_region.test.id
  name = "private"
- mode = "nat"
  cidr = "10.0.0.0/24"
  gateway = "10.0.0.1"
  dhcp = true
+ dhcp_range_start = "10.0.0.100"
+ dhcp_range_end = "10.0.0.200"
  labels = { env = "test" }
 }
 resource "xcloud_security_group" "test" {
@@ -427,13 +530,17 @@ resource "xcloud_elastic_ip" "test" {
  region_id = data.xcloud_region.test.id
  instance_id = xcloud_instance.test.id
 }
-`, apiURL, name, name, name, cpu, size)
+resource "xcloud_snapshot" "test" {
+ instance_id = xcloud_instance.test.id
+ description = %q
+}
+`, apiURL, name, name, name, cpu, size, "snapshot "+name)
 }
 func TestProviderLifecycle(t *testing.T) {
 	m, s := newMockAPI(t)
 	config := testConfig(s.URL, 2, 50, "initial")
 	steps := []resource.TestStep{{Config: config, Check: resource.ComposeAggregateTestCheckFunc(resource.TestCheckResourceAttr("xcloud_instance.test", "network_address", "10.0.0.10"), resource.TestCheckResourceAttr("xcloud_elastic_ip.test", "public_address", "203.0.113.42"), resource.TestCheckResourceAttr("xcloud_instance.test", "status", "running"))}}
-	for _, name := range []string{"instance", "network", "security_group", "volume", "volume_attachment", "elastic_ip", "ssh_key"} {
+	for _, name := range []string{"instance", "network", "security_group", "volume", "volume_attachment", "elastic_ip", "ssh_key", "snapshot"} {
 		step := resource.TestStep{ResourceName: "xcloud_" + name + ".test", ImportState: true, ImportStateVerify: true}
 		if name == "volume" {
 			step.ImportStateVerifyIgnore = []string{"state"} // Attachment changed after the volume was created.
@@ -443,7 +550,7 @@ func TestProviderLifecycle(t *testing.T) {
 		}
 		steps = append(steps, step)
 	}
-	steps = append(steps, resource.TestStep{Config: testConfig(s.URL, 4, 75, "updated"), Check: resource.ComposeAggregateTestCheckFunc(resource.TestCheckResourceAttr("xcloud_instance.test", "cpu_cores", "4"), resource.TestCheckResourceAttr("xcloud_instance.test", "power_state", "running"), resource.TestCheckResourceAttr("xcloud_volume.test", "size_gib", "75"))})
+	steps = append(steps, resource.TestStep{Config: testConfig(s.URL, 4, 75, "updated"), Check: resource.ComposeAggregateTestCheckFunc(resource.TestCheckResourceAttr("xcloud_instance.test", "cpu_cores", "4"), resource.TestCheckResourceAttr("xcloud_instance.test", "power_state", "running"), resource.TestCheckResourceAttr("xcloud_volume.test", "size_gib", "75"), resource.TestCheckResourceAttr("xcloud_snapshot.test", "id", testSnapshot), resource.TestCheckResourceAttr("xcloud_snapshot.test", "description", "snapshot updated"))})
 	resource.UnitTest(t, resource.TestCase{ProtoV6ProviderFactories: factories(), Steps: steps, CheckDestroy: func(*terraform.State) error {
 		m.mu.Lock()
 		defer m.mu.Unlock()

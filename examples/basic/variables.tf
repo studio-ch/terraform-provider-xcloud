@@ -28,3 +28,9 @@ variable "ssh_source_cidr" {
     error_message = "ssh_source_cidr must be a valid CIDR."
   }
 }
+
+variable "take_snapshot" {
+  type        = bool
+  description = "Also take a snapshot of the server once it is running."
+  default     = false
+}

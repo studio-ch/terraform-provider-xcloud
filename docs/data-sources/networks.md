@@ -18,7 +18,7 @@ Read existing Xcloud networks through the public API. Lists reflect API visibili
 | `gateway` | `string` | Read-only |  |
 | `id` | `string` | Read-only |  |
 | `labels` | `map(string)` | Read-only |  |
-| `mode` | `string` | Read-only |  |
+| `mode` | `string` | Read-only | Deprecated; always null. Xcloud networks have no selectable mode. |
 | `name` | `string` | Read-only |  |
 | `region_id` | `string` | Read-only |  |
 | `response_json` | `string` | Read-only |  |

@@ -37,10 +37,9 @@ resource "xcloud_network" "private" {
   region_id = var.region_id
   name      = "private"
   spec_json = jsonencode({
-    mode    = "nat"
-    cidr    = "10.42.0.0/24"
+    subnet  = "10.42.0.0/24"
     gateway = "10.42.0.1"
-    dhcp    = true
+    dhcp    = { rangeStart = "10.42.0.100", rangeEnd = "10.42.0.200" }
   })
 }
 

@@ -7,9 +7,11 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/studio-ch/terraform-provider-xcloud/internal/client"
 )
@@ -51,6 +53,10 @@ func (d *catalogDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 	if d.kind != "region" {
 		attrs["region_id"] = schema.StringAttribute{Required: true, Description: "Region UUID. Limits the catalog lookup to this region."}
 	}
+	if d.kind == "flavor" {
+		attrs["guest_platform"] = schema.StringAttribute{Optional: true, Description: "Filter by guest operating system (macos or linux). The returned platform and capacity match this selection.", Validators: []validator.String{stringvalidator.OneOf("macos", "linux")}}
+		attrs["supported_platforms"] = schema.ListAttribute{Computed: true, ElementType: types.StringType, Description: "Guest systems allowed for this flavor in the selected region."}
+	}
 	for name := range d.fields {
 		switch name {
 		case "cpu_cores", "memory_gib", "disk_gib":
@@ -67,10 +73,16 @@ func (d *catalogDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	var selector types.String
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root(d.selector), &selector)...)
 	q := url.Values{}
-	var region types.String
+	var region, guestPlatform types.String
 	if d.kind != "region" {
 		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("region_id"), &region)...)
 		q = queryRegion(region)
+	}
+	if d.kind == "flavor" {
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("guest_platform"), &guestPlatform)...)
+		if !guestPlatform.IsNull() && !guestPlatform.IsUnknown() {
+			q.Set("platform", guestPlatform.ValueString())
+		}
 	}
 	if resp.Diagnostics.HasError() {
 		return
@@ -108,6 +120,25 @@ func (d *catalogDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root(d.selector), selector)...)
 	if d.kind != "region" {
 		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("region_id"), region)...)
+	}
+	if d.kind == "flavor" {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("guest_platform"), guestPlatform)...)
+		platforms := []string{}
+		if values, ok := row["supportedPlatforms"].([]any); ok {
+			for _, v := range values {
+				if p, ok := v.(string); ok {
+					platforms = append(platforms, p)
+				}
+			}
+		}
+		if len(platforms) == 0 {
+			if p, ok := row["platform"].(string); ok {
+				platforms = append(platforms, p)
+			}
+		}
+		value, diags := types.ListValueFrom(ctx, types.StringType, platforms)
+		resp.Diagnostics.Append(diags...)
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("supported_platforms"), value)...)
 	}
 	for name, wire := range d.fields {
 		switch name {

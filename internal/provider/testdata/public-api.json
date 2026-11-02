@@ -1189,6 +1189,7 @@
                               "suspended",
                               "offloading",
                               "offloaded",
+                              "restoring",
                               "error"
                             ]
                           },
@@ -1204,6 +1205,7 @@
                               "boot_mode",
                               "delete",
                               "resize",
+                              "restore",
                               null
                             ]
                           },
@@ -1227,6 +1229,12 @@
                             "minLength": 1,
                             "maxLength": 255
                           },
+                          "sourceSnapshotId": {
+                            "type": "string",
+                            "nullable": true,
+                            "format": "uuid",
+                            "default": null
+                          },
                           "platform": {
                             "type": "string",
                             "enum": [
@@ -1249,6 +1257,12 @@
                             "type": "integer",
                             "minimum": 480,
                             "maximum": 4320
+                          },
+                          "displayScale": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2,
+                            "default": 1
                           },
                           "networkAddress": {
                             "type": "string",
@@ -1290,6 +1304,11 @@
                           "agentLastError": {
                             "type": "string",
                             "nullable": true
+                          },
+                          "bootingSince": {
+                            "type": "string",
+                            "nullable": true,
+                            "format": "date-time"
                           },
                           "lastUpstreamPhase": {
                             "type": "string",
@@ -1400,6 +1419,7 @@
                           "agentStatus",
                           "agentStatusAt",
                           "agentLastError",
+                          "bootingSince",
                           "lastUpstreamPhase",
                           "lastUpstreamPhaseAt",
                           "lastKnownHost",
@@ -1486,6 +1506,10 @@
                     "minLength": 1,
                     "maxLength": 255
                   },
+                  "sourceSnapshotId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
                   "platform": {
                     "type": "string",
                     "enum": [
@@ -1511,6 +1535,11 @@
                     "minimum": 480,
                     "maximum": 4320,
                     "default": 1080
+                  },
+                  "displayScale": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2
                   },
                   "pendingElasticIp": {
                     "oneOf": [
@@ -1603,8 +1632,7 @@
                   "name",
                   "cpuCores",
                   "memoryGib",
-                  "diskGib",
-                  "imageRef"
+                  "diskGib"
                 ]
               }
             }
@@ -1659,6 +1687,7 @@
                         "suspended",
                         "offloading",
                         "offloaded",
+                        "restoring",
                         "error"
                       ]
                     },
@@ -1674,6 +1703,7 @@
                         "boot_mode",
                         "delete",
                         "resize",
+                        "restore",
                         null
                       ]
                     },
@@ -1697,6 +1727,12 @@
                       "minLength": 1,
                       "maxLength": 255
                     },
+                    "sourceSnapshotId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid",
+                      "default": null
+                    },
                     "platform": {
                       "type": "string",
                       "enum": [
@@ -1719,6 +1755,12 @@
                       "type": "integer",
                       "minimum": 480,
                       "maximum": 4320
+                    },
+                    "displayScale": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2,
+                      "default": 1
                     },
                     "networkAddress": {
                       "type": "string",
@@ -1760,6 +1802,11 @@
                     "agentLastError": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "bootingSince": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
                     },
                     "lastUpstreamPhase": {
                       "type": "string",
@@ -1870,6 +1917,7 @@
                     "agentStatus",
                     "agentStatusAt",
                     "agentLastError",
+                    "bootingSince",
                     "lastUpstreamPhase",
                     "lastUpstreamPhaseAt",
                     "lastKnownHost",
@@ -2199,6 +2247,7 @@
                         "suspended",
                         "offloading",
                         "offloaded",
+                        "restoring",
                         "error"
                       ]
                     },
@@ -2214,6 +2263,7 @@
                         "boot_mode",
                         "delete",
                         "resize",
+                        "restore",
                         null
                       ]
                     },
@@ -2237,6 +2287,12 @@
                       "minLength": 1,
                       "maxLength": 255
                     },
+                    "sourceSnapshotId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid",
+                      "default": null
+                    },
                     "platform": {
                       "type": "string",
                       "enum": [
@@ -2259,6 +2315,12 @@
                       "type": "integer",
                       "minimum": 480,
                       "maximum": 4320
+                    },
+                    "displayScale": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2,
+                      "default": 1
                     },
                     "networkAddress": {
                       "type": "string",
@@ -2300,6 +2362,11 @@
                     "agentLastError": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "bootingSince": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
                     },
                     "lastUpstreamPhase": {
                       "type": "string",
@@ -2410,6 +2477,7 @@
                     "agentStatus",
                     "agentStatusAt",
                     "agentLastError",
+                    "bootingSince",
                     "lastUpstreamPhase",
                     "lastUpstreamPhaseAt",
                     "lastKnownHost",
@@ -2550,6 +2618,7 @@
                         "suspended",
                         "offloading",
                         "offloaded",
+                        "restoring",
                         "error"
                       ]
                     },
@@ -2565,6 +2634,7 @@
                         "boot_mode",
                         "delete",
                         "resize",
+                        "restore",
                         null
                       ]
                     },
@@ -2588,6 +2658,12 @@
                       "minLength": 1,
                       "maxLength": 255
                     },
+                    "sourceSnapshotId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid",
+                      "default": null
+                    },
                     "platform": {
                       "type": "string",
                       "enum": [
@@ -2610,6 +2686,12 @@
                       "type": "integer",
                       "minimum": 480,
                       "maximum": 4320
+                    },
+                    "displayScale": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2,
+                      "default": 1
                     },
                     "networkAddress": {
                       "type": "string",
@@ -2651,6 +2733,11 @@
                     "agentLastError": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "bootingSince": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
                     },
                     "lastUpstreamPhase": {
                       "type": "string",
@@ -2761,6 +2848,7 @@
                     "agentStatus",
                     "agentStatusAt",
                     "agentLastError",
+                    "bootingSince",
                     "lastUpstreamPhase",
                     "lastUpstreamPhaseAt",
                     "lastKnownHost",
@@ -2922,7 +3010,8 @@
         "tags": [
           "xcloud-instances"
         ],
-        "summary": "Async-delete an Xcloud instance",
+        "summary": "Async-delete a stopped or unplaced failed Xcloud instance",
+        "description": "The instance must be stopped or in error with no pending action. Error-state instances are checked live and stopped automatically before deletion.",
         "parameters": [
           {
             "schema": {
@@ -2946,6 +3035,21 @@
             "required": false,
             "description": "Release the instance's attached Elastic IP(s) on delete. Defaults to `true` when omitted; pass `false` to keep them (the kept IPs become unassigned and continue to be billed).",
             "name": "releaseElasticIps",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Also delete the instance's snapshots. Defaults to `false`: snapshots outlive their instance, stay billed, and can still seed new instances.",
+              "example": "false"
+            },
+            "required": false,
+            "description": "Also delete the instance's snapshots. Defaults to `false`: snapshots outlive their instance, stay billed, and can still seed new instances.",
+            "name": "deleteSnapshots",
             "in": "query"
           }
         ],
@@ -2990,6 +3094,76 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Instance must be stopped with no pending action",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream state could not be verified",
             "content": {
               "application/json": {
                 "schema": {
@@ -3114,6 +3288,7 @@
                         "suspended",
                         "offloading",
                         "offloaded",
+                        "restoring",
                         "error"
                       ]
                     },
@@ -3129,6 +3304,7 @@
                         "boot_mode",
                         "delete",
                         "resize",
+                        "restore",
                         null
                       ]
                     },
@@ -3152,6 +3328,12 @@
                       "minLength": 1,
                       "maxLength": 255
                     },
+                    "sourceSnapshotId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid",
+                      "default": null
+                    },
                     "platform": {
                       "type": "string",
                       "enum": [
@@ -3174,6 +3356,12 @@
                       "type": "integer",
                       "minimum": 480,
                       "maximum": 4320
+                    },
+                    "displayScale": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2,
+                      "default": 1
                     },
                     "networkAddress": {
                       "type": "string",
@@ -3215,6 +3403,11 @@
                     "agentLastError": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "bootingSince": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
                     },
                     "lastUpstreamPhase": {
                       "type": "string",
@@ -3325,6 +3518,7 @@
                     "agentStatus",
                     "agentStatusAt",
                     "agentLastError",
+                    "bootingSince",
                     "lastUpstreamPhase",
                     "lastUpstreamPhaseAt",
                     "lastKnownHost",
@@ -3570,6 +3764,7 @@
                         "suspended",
                         "offloading",
                         "offloaded",
+                        "restoring",
                         "error"
                       ]
                     },
@@ -3585,6 +3780,7 @@
                         "boot_mode",
                         "delete",
                         "resize",
+                        "restore",
                         null
                       ]
                     },
@@ -3608,6 +3804,12 @@
                       "minLength": 1,
                       "maxLength": 255
                     },
+                    "sourceSnapshotId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid",
+                      "default": null
+                    },
                     "platform": {
                       "type": "string",
                       "enum": [
@@ -3630,6 +3832,12 @@
                       "type": "integer",
                       "minimum": 480,
                       "maximum": 4320
+                    },
+                    "displayScale": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2,
+                      "default": 1
                     },
                     "networkAddress": {
                       "type": "string",
@@ -3671,6 +3879,11 @@
                     "agentLastError": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "bootingSince": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
                     },
                     "lastUpstreamPhase": {
                       "type": "string",
@@ -3781,6 +3994,7 @@
                     "agentStatus",
                     "agentStatusAt",
                     "agentLastError",
+                    "bootingSince",
                     "lastUpstreamPhase",
                     "lastUpstreamPhaseAt",
                     "lastKnownHost",
@@ -3994,6 +4208,7 @@
                         "suspended",
                         "offloading",
                         "offloaded",
+                        "restoring",
                         "error"
                       ]
                     },
@@ -4009,6 +4224,7 @@
                         "boot_mode",
                         "delete",
                         "resize",
+                        "restore",
                         null
                       ]
                     },
@@ -4032,6 +4248,12 @@
                       "minLength": 1,
                       "maxLength": 255
                     },
+                    "sourceSnapshotId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid",
+                      "default": null
+                    },
                     "platform": {
                       "type": "string",
                       "enum": [
@@ -4054,6 +4276,12 @@
                       "type": "integer",
                       "minimum": 480,
                       "maximum": 4320
+                    },
+                    "displayScale": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2,
+                      "default": 1
                     },
                     "networkAddress": {
                       "type": "string",
@@ -4095,6 +4323,11 @@
                     "agentLastError": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "bootingSince": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
                     },
                     "lastUpstreamPhase": {
                       "type": "string",
@@ -4205,6 +4438,7 @@
                     "agentStatus",
                     "agentStatusAt",
                     "agentLastError",
+                    "bootingSince",
                     "lastUpstreamPhase",
                     "lastUpstreamPhaseAt",
                     "lastKnownHost",
@@ -4889,12 +5123,13 @@
         }
       }
     },
-    "/v1/xcloud/instances/{id}/resize": {
+    "/v1/xcloud/instances/{id}/restore": {
       "post": {
         "tags": [
           "xcloud-instances"
         ],
-        "summary": "Queue a resize action (CPU, memory, disk)",
+        "summary": "Queue a restore of the instance to one of its snapshots",
+        "description": "Reverts the boot disk and firmware settings to a ready snapshot taken of this instance. A running instance is stopped first (hard stop); everything written since the snapshot is lost. Attached volumes, network address and identity are kept. `startAfter` defaults to whether the instance was running.",
         "parameters": [
           {
             "schema": {
@@ -4912,31 +5147,16 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "cpuCores": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 256
-                  },
-                  "memoryGib": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 2048
-                  },
-                  "diskGib": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 65536
-                  },
-                  "flavorSlug": {
+                  "snapshotId": {
                     "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
+                    "format": "uuid"
+                  },
+                  "startAfter": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
-                  "cpuCores",
-                  "memoryGib",
-                  "diskGib"
+                  "snapshotId"
                 ]
               }
             }
@@ -4944,7 +5164,7 @@
         },
         "responses": {
           "202": {
-            "description": "Accepted (pending_action=resize)",
+            "description": "Accepted (pending_action=restore)",
             "content": {
               "application/json": {
                 "schema": {
@@ -4991,6 +5211,7 @@
                         "suspended",
                         "offloading",
                         "offloaded",
+                        "restoring",
                         "error"
                       ]
                     },
@@ -5006,6 +5227,7 @@
                         "boot_mode",
                         "delete",
                         "resize",
+                        "restore",
                         null
                       ]
                     },
@@ -5029,6 +5251,12 @@
                       "minLength": 1,
                       "maxLength": 255
                     },
+                    "sourceSnapshotId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid",
+                      "default": null
+                    },
                     "platform": {
                       "type": "string",
                       "enum": [
@@ -5051,6 +5279,12 @@
                       "type": "integer",
                       "minimum": 480,
                       "maximum": 4320
+                    },
+                    "displayScale": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2,
+                      "default": 1
                     },
                     "networkAddress": {
                       "type": "string",
@@ -5092,6 +5326,11 @@
                     "agentLastError": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "bootingSince": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
                     },
                     "lastUpstreamPhase": {
                       "type": "string",
@@ -5202,6 +5441,498 @@
                     "agentStatus",
                     "agentStatusAt",
                     "agentLastError",
+                    "bootingSince",
+                    "lastUpstreamPhase",
+                    "lastUpstreamPhaseAt",
+                    "lastKnownHost",
+                    "adminUsername",
+                    "sshKeysProvisionedAt",
+                    "passwordProvisionedAt",
+                    "passwordProvisionError",
+                    "expiresAt",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Read-only API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Instance or snapshot not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Instance busy or suspended, or snapshot not ready",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The snapshot was not taken of this instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/xcloud/instances/{id}/resize": {
+      "post": {
+        "tags": [
+          "xcloud-instances"
+        ],
+        "summary": "Queue a resize action (CPU, memory, disk)",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cpuCores": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 256
+                  },
+                  "memoryGib": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2048
+                  },
+                  "diskGib": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65536
+                  },
+                  "flavorSlug": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "cpuCores",
+                  "memoryGib",
+                  "diskGib"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted (pending_action=resize)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "regionId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "regionSlug": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "namespace": {
+                      "type": "string"
+                    },
+                    "xcloudName": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "pending",
+                        "provisioning",
+                        "running",
+                        "stopping",
+                        "stopped",
+                        "starting",
+                        "deleting",
+                        "resizing",
+                        "suspending",
+                        "suspended",
+                        "offloading",
+                        "offloaded",
+                        "restoring",
+                        "error"
+                      ]
+                    },
+                    "pendingAction": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": [
+                        "create",
+                        "start",
+                        "stop",
+                        "shutdown",
+                        "suspend",
+                        "boot_mode",
+                        "delete",
+                        "resize",
+                        "restore",
+                        null
+                      ]
+                    },
+                    "cpuCores": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 256
+                    },
+                    "memoryGib": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2048
+                    },
+                    "diskGib": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 65536
+                    },
+                    "imageRef": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 255
+                    },
+                    "sourceSnapshotId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid",
+                      "default": null
+                    },
+                    "platform": {
+                      "type": "string",
+                      "enum": [
+                        "macos",
+                        "linux"
+                      ],
+                      "default": "macos"
+                    },
+                    "networkRef": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 255
+                    },
+                    "displayWidth": {
+                      "type": "integer",
+                      "minimum": 640,
+                      "maximum": 7680
+                    },
+                    "displayHeight": {
+                      "type": "integer",
+                      "minimum": 480,
+                      "maximum": 4320
+                    },
+                    "displayScale": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2,
+                      "default": 1
+                    },
+                    "networkAddress": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "hardwareAddress": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "node": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "lastError": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "flavorSlug": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "hardwareGeneration": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "agentStatus": {
+                      "type": "string",
+                      "enum": [
+                        "unknown",
+                        "healthy",
+                        "unhealthy"
+                      ]
+                    },
+                    "agentStatusAt": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "agentLastError": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "bootingSince": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "lastUpstreamPhase": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "lastUpstreamPhaseAt": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "lastKnownHost": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "value"
+                        ]
+                      },
+                      "default": []
+                    },
+                    "adminUsername": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "sshKeyIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "default": []
+                    },
+                    "securityGroups": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "sshKeysProvisionedAt": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "adminPasswordSet": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "passwordProvisionedAt": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "passwordProvisionError": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "expiresAt": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "regionId",
+                    "regionSlug",
+                    "name",
+                    "namespace",
+                    "xcloudName",
+                    "status",
+                    "pendingAction",
+                    "cpuCores",
+                    "memoryGib",
+                    "diskGib",
+                    "imageRef",
+                    "networkRef",
+                    "displayWidth",
+                    "displayHeight",
+                    "networkAddress",
+                    "hardwareAddress",
+                    "node",
+                    "lastError",
+                    "flavorSlug",
+                    "hardwareGeneration",
+                    "agentStatus",
+                    "agentStatusAt",
+                    "agentLastError",
+                    "bootingSince",
                     "lastUpstreamPhase",
                     "lastUpstreamPhaseAt",
                     "lastKnownHost",
@@ -8556,6 +9287,1792 @@
         }
       }
     },
+    "/v1/xcloud/instances/{id}/snapshots": {
+      "get": {
+        "tags": [
+          "xcloud-snapshots"
+        ],
+        "summary": "List the snapshots taken of one Xcloud instance",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Snapshots, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "tenantId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "regionId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "regionSlug": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "description": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "xcloudName": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "creating",
+                              "ready",
+                              "failed",
+                              "deleting"
+                            ]
+                          },
+                          "lastError": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "sourceInstanceId": {
+                            "type": "string",
+                            "nullable": true,
+                            "format": "uuid"
+                          },
+                          "sourceInstanceName": {
+                            "type": "string"
+                          },
+                          "restorable": {
+                            "type": "boolean"
+                          },
+                          "platform": {
+                            "type": "string",
+                            "enum": [
+                              "macos",
+                              "linux"
+                            ]
+                          },
+                          "imageRef": {
+                            "type": "string"
+                          },
+                          "diskGib": {
+                            "type": "integer"
+                          },
+                          "minCpuCores": {
+                            "type": "integer",
+                            "nullable": true
+                          },
+                          "minMemoryGib": {
+                            "type": "integer",
+                            "nullable": true
+                          },
+                          "takenWhileRunning": {
+                            "type": "boolean",
+                            "nullable": true
+                          },
+                          "captureTime": {
+                            "type": "string",
+                            "nullable": true,
+                            "format": "date-time"
+                          },
+                          "readyAt": {
+                            "type": "string",
+                            "nullable": true,
+                            "format": "date-time"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "tenantId",
+                          "regionId",
+                          "regionSlug",
+                          "name",
+                          "description",
+                          "xcloudName",
+                          "status",
+                          "lastError",
+                          "sourceInstanceId",
+                          "sourceInstanceName",
+                          "restorable",
+                          "platform",
+                          "imageRef",
+                          "diskGib",
+                          "minCpuCores",
+                          "minMemoryGib",
+                          "takenWhileRunning",
+                          "captureTime",
+                          "readyAt",
+                          "createdAt"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Snapshot or instance not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict: busy or suspended instance, name taken, limit or quota reached, snapshot in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Region not ready or unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Not applicable to this snapshot or instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "xcloud-snapshots"
+        ],
+        "summary": "Take a snapshot of an Xcloud instance",
+        "description": "Captures the boot disk and firmware settings, never memory or attached volumes. A running instance is snapshotted in place and the result is crash-consistent, as after a sudden power loss. The snapshot is created `creating` and turns `ready` asynchronously.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120,
+                    "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 _.:-]*$"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 1000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created (status=creating)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "regionId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "regionSlug": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "description": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "xcloudName": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "creating",
+                        "ready",
+                        "failed",
+                        "deleting"
+                      ]
+                    },
+                    "lastError": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "sourceInstanceId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid"
+                    },
+                    "sourceInstanceName": {
+                      "type": "string"
+                    },
+                    "restorable": {
+                      "type": "boolean"
+                    },
+                    "platform": {
+                      "type": "string",
+                      "enum": [
+                        "macos",
+                        "linux"
+                      ]
+                    },
+                    "imageRef": {
+                      "type": "string"
+                    },
+                    "diskGib": {
+                      "type": "integer"
+                    },
+                    "minCpuCores": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "minMemoryGib": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "takenWhileRunning": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "captureTime": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "readyAt": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "regionId",
+                    "regionSlug",
+                    "name",
+                    "description",
+                    "xcloudName",
+                    "status",
+                    "lastError",
+                    "sourceInstanceId",
+                    "sourceInstanceName",
+                    "restorable",
+                    "platform",
+                    "imageRef",
+                    "diskGib",
+                    "minCpuCores",
+                    "minMemoryGib",
+                    "takenWhileRunning",
+                    "captureTime",
+                    "readyAt",
+                    "createdAt"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Snapshot or instance not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict: busy or suspended instance, name taken, limit or quota reached, snapshot in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Region not ready or unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Not applicable to this snapshot or instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/xcloud/snapshots": {
+      "get": {
+        "tags": [
+          "xcloud-snapshots"
+        ],
+        "summary": "List the tenant Xcloud snapshots, including those of deleted instances",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "regionId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "instanceId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Snapshots, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "tenantId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "regionId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "regionSlug": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "description": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "xcloudName": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "creating",
+                              "ready",
+                              "failed",
+                              "deleting"
+                            ]
+                          },
+                          "lastError": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "sourceInstanceId": {
+                            "type": "string",
+                            "nullable": true,
+                            "format": "uuid"
+                          },
+                          "sourceInstanceName": {
+                            "type": "string"
+                          },
+                          "restorable": {
+                            "type": "boolean"
+                          },
+                          "platform": {
+                            "type": "string",
+                            "enum": [
+                              "macos",
+                              "linux"
+                            ]
+                          },
+                          "imageRef": {
+                            "type": "string"
+                          },
+                          "diskGib": {
+                            "type": "integer"
+                          },
+                          "minCpuCores": {
+                            "type": "integer",
+                            "nullable": true
+                          },
+                          "minMemoryGib": {
+                            "type": "integer",
+                            "nullable": true
+                          },
+                          "takenWhileRunning": {
+                            "type": "boolean",
+                            "nullable": true
+                          },
+                          "captureTime": {
+                            "type": "string",
+                            "nullable": true,
+                            "format": "date-time"
+                          },
+                          "readyAt": {
+                            "type": "string",
+                            "nullable": true,
+                            "format": "date-time"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "tenantId",
+                          "regionId",
+                          "regionSlug",
+                          "name",
+                          "description",
+                          "xcloudName",
+                          "status",
+                          "lastError",
+                          "sourceInstanceId",
+                          "sourceInstanceName",
+                          "restorable",
+                          "platform",
+                          "imageRef",
+                          "diskGib",
+                          "minCpuCores",
+                          "minMemoryGib",
+                          "takenWhileRunning",
+                          "captureTime",
+                          "readyAt",
+                          "createdAt"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Snapshot or instance not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict: busy or suspended instance, name taken, limit or quota reached, snapshot in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Region not ready or unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Not applicable to this snapshot or instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/xcloud/snapshots/{id}": {
+      "get": {
+        "tags": [
+          "xcloud-snapshots"
+        ],
+        "summary": "Get one Xcloud snapshot",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "regionId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "regionSlug": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "description": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "xcloudName": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "creating",
+                        "ready",
+                        "failed",
+                        "deleting"
+                      ]
+                    },
+                    "lastError": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "sourceInstanceId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid"
+                    },
+                    "sourceInstanceName": {
+                      "type": "string"
+                    },
+                    "restorable": {
+                      "type": "boolean"
+                    },
+                    "platform": {
+                      "type": "string",
+                      "enum": [
+                        "macos",
+                        "linux"
+                      ]
+                    },
+                    "imageRef": {
+                      "type": "string"
+                    },
+                    "diskGib": {
+                      "type": "integer"
+                    },
+                    "minCpuCores": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "minMemoryGib": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "takenWhileRunning": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "captureTime": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "readyAt": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "regionId",
+                    "regionSlug",
+                    "name",
+                    "description",
+                    "xcloudName",
+                    "status",
+                    "lastError",
+                    "sourceInstanceId",
+                    "sourceInstanceName",
+                    "restorable",
+                    "platform",
+                    "imageRef",
+                    "diskGib",
+                    "minCpuCores",
+                    "minMemoryGib",
+                    "takenWhileRunning",
+                    "captureTime",
+                    "readyAt",
+                    "createdAt"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Snapshot or instance not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict: busy or suspended instance, name taken, limit or quota reached, snapshot in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Region not ready or unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Not applicable to this snapshot or instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "xcloud-snapshots"
+        ],
+        "summary": "Rename or re-describe an Xcloud snapshot",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120,
+                    "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 _.:-]*$"
+                  },
+                  "description": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 1000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "regionId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "regionSlug": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "description": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "xcloudName": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "creating",
+                        "ready",
+                        "failed",
+                        "deleting"
+                      ]
+                    },
+                    "lastError": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "sourceInstanceId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid"
+                    },
+                    "sourceInstanceName": {
+                      "type": "string"
+                    },
+                    "restorable": {
+                      "type": "boolean"
+                    },
+                    "platform": {
+                      "type": "string",
+                      "enum": [
+                        "macos",
+                        "linux"
+                      ]
+                    },
+                    "imageRef": {
+                      "type": "string"
+                    },
+                    "diskGib": {
+                      "type": "integer"
+                    },
+                    "minCpuCores": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "minMemoryGib": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "takenWhileRunning": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "captureTime": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "readyAt": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "regionId",
+                    "regionSlug",
+                    "name",
+                    "description",
+                    "xcloudName",
+                    "status",
+                    "lastError",
+                    "sourceInstanceId",
+                    "sourceInstanceName",
+                    "restorable",
+                    "platform",
+                    "imageRef",
+                    "diskGib",
+                    "minCpuCores",
+                    "minMemoryGib",
+                    "takenWhileRunning",
+                    "captureTime",
+                    "readyAt",
+                    "createdAt"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Snapshot or instance not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict: busy or suspended instance, name taken, limit or quota reached, snapshot in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Region not ready or unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Not applicable to this snapshot or instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "xcloud-snapshots"
+        ],
+        "summary": "Delete an Xcloud snapshot",
+        "description": "Deletion is asynchronous: the snapshot reads `deleting` until xcloud has reclaimed its storage, which waits while an instance created from it has never started. Instances created from it keep running.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Deletion requested",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "regionId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "regionSlug": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "description": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "xcloudName": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "creating",
+                        "ready",
+                        "failed",
+                        "deleting"
+                      ]
+                    },
+                    "lastError": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "sourceInstanceId": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid"
+                    },
+                    "sourceInstanceName": {
+                      "type": "string"
+                    },
+                    "restorable": {
+                      "type": "boolean"
+                    },
+                    "platform": {
+                      "type": "string",
+                      "enum": [
+                        "macos",
+                        "linux"
+                      ]
+                    },
+                    "imageRef": {
+                      "type": "string"
+                    },
+                    "diskGib": {
+                      "type": "integer"
+                    },
+                    "minCpuCores": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "minMemoryGib": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "takenWhileRunning": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "captureTime": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "readyAt": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "regionId",
+                    "regionSlug",
+                    "name",
+                    "description",
+                    "xcloudName",
+                    "status",
+                    "lastError",
+                    "sourceInstanceId",
+                    "sourceInstanceName",
+                    "restorable",
+                    "platform",
+                    "imageRef",
+                    "diskGib",
+                    "minCpuCores",
+                    "minMemoryGib",
+                    "takenWhileRunning",
+                    "captureTime",
+                    "readyAt",
+                    "createdAt"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Snapshot or instance not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict: busy or suspended instance, name taken, limit or quota reached, snapshot in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Region not ready or unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Not applicable to this snapshot or instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/xcloud/image-pushes/{id}": {
       "get": {
         "tags": [
@@ -8936,6 +11453,9 @@
                           "name": {
                             "type": "string"
                           },
+                          "displayName": {
+                            "type": "string"
+                          },
                           "regionId": {
                             "type": "string",
                             "format": "uuid"
@@ -9167,6 +11687,9 @@
                   "type": "object",
                   "properties": {
                     "name": {
+                      "type": "string"
+                    },
+                    "displayName": {
                       "type": "string"
                     },
                     "regionId": {
@@ -9448,6 +11971,9 @@
                   "type": "object",
                   "properties": {
                     "name": {
+                      "type": "string"
+                    },
+                    "displayName": {
                       "type": "string"
                     },
                     "regionId": {
@@ -9917,8 +12443,10 @@
                               "default"
                             ]
                           },
+                          "managedByCatalog": {
+                            "type": "boolean"
+                          },
                           "mode": {
-                            "type": "string",
                             "nullable": true
                           },
                           "cidr": {
@@ -9930,7 +12458,29 @@
                             "nullable": true
                           },
                           "dhcp": {
-                            "type": "boolean",
+                            "type": "boolean"
+                          },
+                          "dhcpRange": {
+                            "type": "object",
+                            "nullable": true,
+                            "properties": {
+                              "rangeStart": {
+                                "type": "string",
+                                "format": "ip"
+                              },
+                              "rangeEnd": {
+                                "type": "string",
+                                "format": "ip"
+                              }
+                            },
+                            "required": [
+                              "rangeStart",
+                              "rangeEnd"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "vni": {
+                            "type": "integer",
                             "nullable": true
                           },
                           "spec": {
@@ -9959,6 +12509,8 @@
                           "cidr",
                           "gateway",
                           "dhcp",
+                          "dhcpRange",
+                          "vni",
                           "spec",
                           "labels",
                           "createdAt"
@@ -10067,29 +12619,61 @@
                     "maxLength": 120,
                     "pattern": "^[a-z0-9][a-z0-9-]*$"
                   },
-                  "mode": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 40
-                  },
                   "cidr": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
+                    "type": "string"
                   },
                   "gateway": {
                     "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
+                    "format": "ip"
                   },
                   "dhcp": {
-                    "type": "boolean"
+                    "type": "object",
+                    "properties": {
+                      "rangeStart": {
+                        "type": "string",
+                        "format": "ip"
+                      },
+                      "rangeEnd": {
+                        "type": "string",
+                        "format": "ip"
+                      }
+                    },
+                    "required": [
+                      "rangeStart",
+                      "rangeEnd"
+                    ],
+                    "additionalProperties": false
                   },
                   "spec": {
                     "type": "object",
-                    "additionalProperties": {
-                      "nullable": true
-                    }
+                    "properties": {
+                      "subnet": {
+                        "type": "string"
+                      },
+                      "gateway": {
+                        "type": "string",
+                        "format": "ip"
+                      },
+                      "dhcp": {
+                        "type": "object",
+                        "properties": {
+                          "rangeStart": {
+                            "type": "string",
+                            "format": "ip"
+                          },
+                          "rangeEnd": {
+                            "type": "string",
+                            "format": "ip"
+                          }
+                        },
+                        "required": [
+                          "rangeStart",
+                          "rangeEnd"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
                   },
                   "labels": {
                     "type": "object",
@@ -10101,7 +12685,8 @@
                 "required": [
                   "regionId",
                   "name"
-                ]
+                ],
+                "additionalProperties": false
               }
             }
           }
@@ -10131,8 +12716,10 @@
                         "default"
                       ]
                     },
+                    "managedByCatalog": {
+                      "type": "boolean"
+                    },
                     "mode": {
-                      "type": "string",
                       "nullable": true
                     },
                     "cidr": {
@@ -10144,7 +12731,29 @@
                       "nullable": true
                     },
                     "dhcp": {
-                      "type": "boolean",
+                      "type": "boolean"
+                    },
+                    "dhcpRange": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "rangeStart": {
+                          "type": "string",
+                          "format": "ip"
+                        },
+                        "rangeEnd": {
+                          "type": "string",
+                          "format": "ip"
+                        }
+                      },
+                      "required": [
+                        "rangeStart",
+                        "rangeEnd"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "vni": {
+                      "type": "integer",
                       "nullable": true
                     },
                     "spec": {
@@ -10173,6 +12782,8 @@
                     "cidr",
                     "gateway",
                     "dhcp",
+                    "dhcpRange",
+                    "vni",
                     "spec",
                     "labels",
                     "createdAt"
@@ -10604,6 +13215,426 @@
           },
           "422": {
             "description": "Network is a seeded copy of the cluster catalog",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Upstream error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "xcloud-networks"
+        ],
+        "summary": "Update a tenant-owned Xcloud network",
+        "description": "Update subnet, gateway, DHCP range or labels. Name and region are immutable. Global catalog networks and their seeded copies are read-only. Address changes may interrupt attached instances.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "pattern": "^[a-z0-9][a-z0-9-]*$"
+            },
+            "required": true,
+            "name": "name",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "regionId",
+            "in": "query"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "subnet": {
+                    "type": "string"
+                  },
+                  "gateway": {
+                    "type": "string",
+                    "format": "ip"
+                  },
+                  "dhcp": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "rangeStart": {
+                        "type": "string",
+                        "format": "ip"
+                      },
+                      "rangeEnd": {
+                        "type": "string",
+                        "format": "ip"
+                      }
+                    },
+                    "required": [
+                      "rangeStart",
+                      "rangeEnd"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated network",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "regionId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "regionSlug": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "tenant",
+                        "default"
+                      ]
+                    },
+                    "managedByCatalog": {
+                      "type": "boolean"
+                    },
+                    "mode": {
+                      "nullable": true
+                    },
+                    "cidr": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "gateway": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "dhcp": {
+                      "type": "boolean"
+                    },
+                    "dhcpRange": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "rangeStart": {
+                          "type": "string",
+                          "format": "ip"
+                        },
+                        "rangeEnd": {
+                          "type": "string",
+                          "format": "ip"
+                        }
+                      },
+                      "required": [
+                        "rangeStart",
+                        "rangeEnd"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "vni": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "spec": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "nullable": true
+                      }
+                    },
+                    "labels": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "regionId",
+                    "regionSlug",
+                    "source",
+                    "mode",
+                    "cidr",
+                    "gateway",
+                    "dhcp",
+                    "dhcpRange",
+                    "vni",
+                    "spec",
+                    "labels",
+                    "createdAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid network configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Write access required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Region or tenant network not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Upstream conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Region unavailable or credentials missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Global catalog network is read-only",
             "content": {
               "application/json": {
                 "schema": {
@@ -12141,7 +15172,7 @@
         "tags": [
           "xcloud-flavors"
         ],
-        "summary": "List enabled global Xcloud flavors",
+        "summary": "List enabled Xcloud flavors for a region and guest platform",
         "parameters": [
           {
             "schema": {
@@ -12150,6 +15181,18 @@
             },
             "required": false,
             "name": "regionId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "macos",
+                "linux"
+              ]
+            },
+            "required": false,
+            "name": "platform",
             "in": "query"
           }
         ],
@@ -12197,6 +15240,18 @@
                               "macos",
                               "linux"
                             ]
+                          },
+                          "supportedPlatforms": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "macos",
+                                "linux"
+                              ]
+                            },
+                            "minItems": 1,
+                            "maxItems": 2
                           },
                           "hardwareGeneration": {
                             "type": "string",
@@ -13361,7 +16416,7 @@
                   "home": {
                     "type": "string",
                     "description": "Absolute directory that `cwd` must stay below. When set, a `cwd` outside it fails the command with exit 1 instead of running it elsewhere. Confinement is lexical: a symlink inside the guest pointing outward is not caught here.",
-                    "example": "/home/admin/rakazo-home"
+                    "example": "/Users/admin/workspace"
                   },
                   "pty": {
                     "type": "boolean",

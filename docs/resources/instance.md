@@ -27,6 +27,36 @@ Use `tags = { environment = "development" }` for managed metadata.
 macOS guests also support `boot_into_recovery` and `admin_password`.
 Passwords remain in sensitive Terraform state and are injected asynchronously.
 VM deletion preserves Elastic IPs; their resource owns address release.
+Before destroying or replacing an instance, set `power_state = "stopped"` and
+run `terraform apply`. Wait for that apply to finish before destroying or
+replacing it. The API rejects deletion unless the instance is stopped with
+no pending action (HTTP 409).
+
+## Creating an instance from a snapshot
+
+Set `source_snapshot_id` instead of `image_ref` to boot a copy of a ready
+`xcloud_snapshot` in the same region, with a machine identity of its own.
+
+```hcl
+resource "xcloud_instance" "copy" {
+  region_id          = xcloud_snapshot.baseline.region_id
+  name               = "build-server-2"
+  source_snapshot_id = xcloud_snapshot.baseline.id
+  platform           = xcloud_snapshot.baseline.platform
+  cpu_cores          = xcloud_snapshot.baseline.min_cpu_cores
+  memory_gib         = xcloud_snapshot.baseline.min_memory_gib
+  disk_gib           = xcloud_snapshot.baseline.disk_gib
+}
+```
+
+Exactly one of `image_ref` and `source_snapshot_id` is required; with a snapshot,
+`image_ref` reads the snapshot's source image. `platform` must match the
+snapshot's, `disk_gib` must be at least its `disk_gib`, and `cpu_cores` and
+`memory_gib` at least its minimums. The guest boots as it was when the snapshot
+was taken, users and keys included, so `user_data` and `admin_username` are
+rejected and Linux guests need no `ssh_key_ids`. Changing `source_snapshot_id`
+replaces the VM; deleting the snapshot later does not. Destroying the instance
+keeps its snapshots.
 
 ## Linux startup configuration
 
@@ -77,7 +107,7 @@ to an imported instance plans replacement.
 | `flavor_slug` | `string` | Optional / default or computed | Catalog flavor slug. CPU, memory and disk must match the flavor; this is not a sizing resolver. |
 | `hardware_generation` | `string` | Optional / default or computed | Hardware generation constraint. Resolved from the flavor when flavor_slug is supplied. |
 | `id` | `string` | Read-only | Resource identifier used for import. |
-| `image_ref` | `string` | Required | Image name or OCI reference accepted by the public API. |
+| `image_ref` | `string` | Optional / default or computed | Image name or OCI reference accepted by the public API. Exactly one of image_ref and source_snapshot_id is required; with source_snapshot_id it reads the snapshot's source image. Changes replace the VM. |
 | `lifetime_seconds` | `number` | Optional | Automatic deletion deadline relative to creation. Omit for unlimited lifetime. |
 | `memory_gib` | `number` | Required | Changing sizing stops and resizes the VM, then restores the configured power state. Disk shrinking is rejected. |
 | `name` | `string` | Required | Display name. |
@@ -88,6 +118,7 @@ to an imported instance plans replacement.
 | `region_id` | `string` | Required | Region UUID. |
 | `security_groups` | `set(string)` | Optional / default or computed | Names of security groups in the same region. |
 | `shutdown_mode` | `string` | Optional / default or computed | How to stop before resize or when power_state is stopped: graceful (ACPI shutdown, default) or hard (immediate stop). |
+| `source_snapshot_id` | `string` | Optional | UUID of a ready snapshot in the same region to create the VM from instead of image_ref. platform must match the snapshot's, disk_gib must be at least its disk_gib and cpu_cores and memory_gib at least its minimums. The guest keeps the snapshot's users: user_data and admin_username do not apply. Changes replace the VM; deleting the snapshot later does not. |
 | `ssh_key_ids` | `set(string)` | Optional / default or computed | SSH key UUIDs to inject into the guest. |
 | `status` | `string` | Read-only | Actual API lifecycle status. |
 | `tags` | `map(string)` | Optional / default or computed | Metadata tags. Keys: lowercase letters, digits, dots, underscores, slashes, hyphens; at most 20 tags. |

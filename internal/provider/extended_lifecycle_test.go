@@ -21,7 +21,7 @@ func providerConfig(origin string) string {
 }
 func TestImageCredentialAndNetworkSpecLifecycle(t *testing.T) {
 	m, s := newMockAPI(t)
-	config := func(label, mode, password string) string {
+	config := func(label, gateway, password string) string {
 		return providerConfig(s.URL) + fmt.Sprintf(`
 resource "xcloud_registry_credential" "test" {
  display_name = %q
@@ -39,7 +39,7 @@ resource "xcloud_image" "test" {
 resource "xcloud_network" "test" {
  region_id = %q
  name = "private"
- spec_json = jsonencode({mode = %q, custom = {mtu = 1400}})
+ spec_json = jsonencode({subnet = "10.0.0.0/24", gateway = %q})
 }
 data "xcloud_registry_credential" "test" { id = xcloud_registry_credential.test.id }
 data "xcloud_image" "test" {
@@ -50,13 +50,13 @@ data "xcloud_network" "test" {
  region_id = xcloud_network.test.region_id
  name = xcloud_network.test.name
 }
-`, label, password, testRegion, label, testRegion, mode)
+`, label, password, testRegion, label, testRegion, gateway)
 	}
 	resource.UnitTest(t, resource.TestCase{ProtoV6ProviderFactories: factories(), Steps: []resource.TestStep{
-		{Config: config("initial", "nat", "secret-one"), Check: resource.ComposeAggregateTestCheckFunc(resource.TestCheckResourceAttr("xcloud_image.test", "labels.env", "initial"), resource.TestCheckResourceAttr("xcloud_image.test", "all_labels.source", "studio-cp-register"), resource.TestCheckResourceAttr("data.xcloud_network.test", "mode", "nat"))},
+		{Config: config("initial", "10.0.0.1", "secret-one"), Check: resource.ComposeAggregateTestCheckFunc(resource.TestCheckResourceAttr("xcloud_image.test", "labels.env", "initial"), resource.TestCheckResourceAttr("xcloud_image.test", "all_labels.source", "studio-cp-register"), resource.TestCheckResourceAttr("data.xcloud_network.test", "gateway", "10.0.0.1"))},
 		{ResourceName: "xcloud_image.test", ImportState: true, ImportStateVerify: true, ImportStateVerifyIgnore: []string{"credential_id"}},
 		{ResourceName: "xcloud_registry_credential.test", ImportState: true, ImportStateVerify: true, ImportStateVerifyIgnore: []string{"password"}},
-		{Config: config("updated", "bridge", "secret-two"), Check: resource.ComposeAggregateTestCheckFunc(resource.TestCheckResourceAttr("xcloud_image.test", "labels.env", "updated"), resource.TestCheckResourceAttr("data.xcloud_registry_credential.test", "display_name", "updated"), resource.TestCheckResourceAttr("data.xcloud_network.test", "mode", "bridge"))},
+		{Config: config("updated", "10.0.0.2", "secret-two"), Check: resource.ComposeAggregateTestCheckFunc(resource.TestCheckResourceAttr("xcloud_image.test", "labels.env", "updated"), resource.TestCheckResourceAttr("data.xcloud_registry_credential.test", "display_name", "updated"), resource.TestCheckResourceAttr("data.xcloud_network.test", "gateway", "10.0.0.2"))},
 	}, CheckDestroy: func(*terraform.State) error {
 		m.mu.Lock()
 		defer m.mu.Unlock()
@@ -145,9 +145,9 @@ func TestInventoryDataSources(t *testing.T) {
 	_, s := newMockAPI(t)
 	config := testConfig(s.URL, 2, 50, "inventory")
 	checks := []resource.TestCheckFunc{}
-	names := map[string]string{"instance": "test", "network": "private", "security_group": "ssh", "volume": "test", "elastic_ip": "test", "ssh_key": "test"}
+	names := map[string]string{"instance": "test", "network": "private", "security_group": "ssh", "volume": "test", "elastic_ip": "test", "ssh_key": "test", "snapshot": "test"}
 	for _, d := range inventoryDefinitions() {
-		config += fmt.Sprintf("\ndata %q \"all\" {\n depends_on = [xcloud_instance.test, xcloud_volume_attachment.test, xcloud_elastic_ip.test]\n", "xcloud_"+d.plural)
+		config += fmt.Sprintf("\ndata %q \"all\" {\n depends_on = [xcloud_instance.test, xcloud_volume_attachment.test, xcloud_elastic_ip.test, xcloud_snapshot.test]\n", "xcloud_"+d.plural)
 		if d.regional {
 			config += fmt.Sprintf("region_id = %q\n", testRegion)
 		}
@@ -214,8 +214,74 @@ func TestNetworkSpecConflictRejectedBeforeCreate(t *testing.T) {
 	config := providerConfig(s.URL) + fmt.Sprintf(`resource "xcloud_network" "test" {
  region_id = %q
  name = "private"
- mode = "nat"
- spec_json = jsonencode({mode = "bridge"})
+ cidr = "10.0.0.0/24"
+ spec_json = jsonencode({subnet = "10.0.0.0/24", gateway = "10.0.0.1"})
 }`, testRegion)
 	resource.UnitTest(t, resource.TestCase{ProtoV6ProviderFactories: factories(), Steps: []resource.TestStep{{Config: config, PlanOnly: true, ExpectError: regexp.MustCompile("Conflicting network spec")}}})
+}
+
+func TestNetworkUpdatesInPlaceAndDisablesDHCP(t *testing.T) {
+	m, s := newMockAPI(t)
+	config := func(gateway string, enabled bool) string {
+		dhcp := "dhcp = false"
+		if enabled {
+			dhcp = `dhcp = true
+ dhcp_range_start = "10.0.0.100"
+ dhcp_range_end = "10.0.0.200"`
+		}
+		return providerConfig(s.URL) + fmt.Sprintf(`resource "xcloud_network" "test" {
+ region_id = %q
+ name = "private"
+ cidr = "10.0.0.0/24"
+ gateway = %q
+ %s
+ labels = { gateway = %q }
+}`, testRegion, gateway, dhcp, gateway)
+	}
+	resource.UnitTest(t, resource.TestCase{ProtoV6ProviderFactories: factories(), Steps: []resource.TestStep{
+		{Config: config("10.0.0.1", true), Check: resource.TestCheckResourceAttr("xcloud_network.test", "dhcp_range_start", "10.0.0.100")},
+		{Config: config("10.0.0.2", false), Check: resource.ComposeAggregateTestCheckFunc(resource.TestCheckResourceAttr("xcloud_network.test", "dhcp", "false"), resource.TestCheckResourceAttr("xcloud_network.test", "gateway", "10.0.0.2"), func(*terraform.State) error {
+			m.mu.Lock()
+			defer m.mu.Unlock()
+			joined := strings.Join(m.calls, "\n")
+			if strings.Count(joined, "POST "+networksPath+"\n") != 1 || !strings.Contains(joined, "PATCH "+networksPath+"/private") || strings.Contains(joined, "DELETE "+networksPath) {
+				return fmt.Errorf("network must update without replacement: %s", joined)
+			}
+			return nil
+		})},
+	}})
+}
+
+func TestNetworkInvalidConfiguration(t *testing.T) {
+	for _, tc := range []struct{ config, message string }{
+		{`mode = "nat"`, "Unsupported network mode"},
+		{`dhcp = true`, "Missing DHCP range"},
+		{`dhcp_range_start = "10.0.0.100"`, "Incomplete DHCP range"},
+		{`spec_json = jsonencode({vlan = 42})`, "Unsupported network spec field"},
+	} {
+		_, s := newMockAPI(t)
+		config := providerConfig(s.URL) + fmt.Sprintf(`resource "xcloud_network" "test" {
+ region_id = %q
+ name = "private"
+ cidr = "10.0.0.0/24"
+ gateway = "10.0.0.1"
+ %s
+}`, testRegion, tc.config)
+		resource.UnitTest(t, resource.TestCase{ProtoV6ProviderFactories: factories(), Steps: []resource.TestStep{{Config: config, PlanOnly: true, ExpectError: regexp.MustCompile(tc.message)}}})
+	}
+}
+
+func TestNetworkRawSpecCanRemoveDHCP(t *testing.T) {
+	_, s := newMockAPI(t)
+	config := func(dhcp string) string {
+		return providerConfig(s.URL) + fmt.Sprintf(`resource "xcloud_network" "test" {
+ region_id = %q
+ name = "private"
+ spec_json = jsonencode({subnet = "10.0.0.0/24", gateway = "10.0.0.1"%s})
+}`, testRegion, dhcp)
+	}
+	resource.UnitTest(t, resource.TestCase{ProtoV6ProviderFactories: factories(), Steps: []resource.TestStep{
+		{Config: config(`,dhcp = {rangeStart = "10.0.0.100", rangeEnd = "10.0.0.200"}`), Check: resource.TestCheckResourceAttr("xcloud_network.test", "dhcp", "true")},
+		{Config: config(""), Check: resource.TestCheckResourceAttr("xcloud_network.test", "dhcp", "false")},
+	}})
 }

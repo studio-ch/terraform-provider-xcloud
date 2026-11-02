@@ -23,7 +23,8 @@ Die [ursprüngliche Testquelle](audit/2026-09-14-regressions.go.txt) und [damali
 | Images | OCI-Registrierung mit anonymer, gespeicherter oder Ad-hoc-Authentifizierung; Precache; editierbare Labels; Import; Kataloglöschung und optionale Registry-Löschung. |
 | Registry-Zugangsdaten | CRUD, Passwortrotation und Import. Plattformverwaltete Credentials bleiben schreibgeschützt. |
 | Netzwerke | Beliebiges spec_json; effective_spec_json zeigt API-Defaults. Nur konfigurierte JSON-Felder werden auf Drift geprüft. Änderungen ersetzen das Netz. |
-| Infrastruktur lesen | Einzelne Instanzen, Netze, Security Groups, Volumes, Elastic IPs, SSH-Keys und Registry-Credentials zusätzlich zu Region/Flavor/Image. Listen für alle zehn Objektarten. |
+| Snapshots | `xcloud_snapshot` nimmt einen Snapshot einer Instanz auf und wartet auf `ready` (Fehler mit `lastError` bei `failed`); Name und Beschreibung ändern sich in place; Löschen wartet, bis xcloud den Speicher freigegeben hat. `xcloud_instance.source_snapshot_id` erstellt eine VM aus einem Snapshot. Restore ist eine imperative Aktion und kein Terraform-Zustand. |
+| Infrastruktur lesen | Einzelne Instanzen, Netze, Security Groups, Volumes, Elastic IPs, Snapshots, SSH-Keys und Registry-Credentials zusätzlich zu Region/Flavor/Image. Listen für alle elf Objektarten. |
 | Katalog-Metadaten | Typisierte Kernfelder plus response_json für den vollständigen öffentlichen Datensatz, einschließlich verfügbarer Preis-/Kapazitätsinformationen. |
 
 Die beiden zusätzlichen Ressourcen heißen `xcloud_image` und `xcloud_registry_credential`. Sämtliche Ressourcen unterstützen Import. Die [Referenz](index.md) enthält alle Schemas; das [Katalog-Beispiel](../examples/catalog/main.tf) zeigt Image-Authentifizierung und freie Netzwerk-Spezifikationen.
@@ -32,7 +33,7 @@ Die beiden zusätzlichen Ressourcen heißen `xcloud_image` und `xcloud_registry_
 
 - Echtes Terraform prüft Erstellung, Änderung, Import und Löschung gegen eine lokale HTTP-Test-API.
 - Zusätzliche Szenarien: VM-Ersatz mit IP-Erhalt, Tags-Drift, Flavor-basiertes Provisionieren und Resize, Lifetime-Änderung und Entfernung, Passwortrotation, Suspend/Recovery, Image-Labels, Registry-Credentials und Netzwerk-Spec-Ersatz.
-- Alle 20 Datenquellen sind registriert und werden in Terraform-Szenarien gelesen, einschließlich leerer Listen.
+- Alle 22 Datenquellen sind registriert und werden in Terraform-Szenarien gelesen, einschließlich leerer Listen.
 - Der öffentliche OpenAPI-Vertrag liegt im Provider unter `internal/provider/testdata/public-api.json`. Der Check läuft auch im isolierten Checkout und prüft ausgehende Requests einschließlich Query-Namen sowie deklarierte Erfolgsstatuscodes und JSON-/Leerantwort-Semantik.
 - Der Vertragsprüfer ist **kein vollständiger OpenAPI-Validator**: Er prüft unter anderem nicht sämtliche Formate, Längen und alle Response-DTO-Felder. Lokale Tests ersetzen keine echte API-/Worker-Abnahme.
 - API-Fehlerdiagnosen schwärzen API-Tokens und Passwortwerte aus dem jeweiligen Request, auch in verschachtelter Image-Authentifizierung.
@@ -51,7 +52,7 @@ terraform fmt -check -recursive examples
 - Ein mehrdeutig fehlgeschlagenes Create kann trotz unterbundener Retries eine Ressource ohne State-Eintrag hinterlassen. Vor einem weiteren Apply muss deren Existenz geprüft und die Ressource gegebenenfalls importiert werden.
 - Elastic IPs, SSH-Keys und Registry-Credentials werden mangels GET-by-ID per Listen-Scan gelesen: linear pro Ressource, potenziell quadratische Übertragung bei vielen einzeln verwalteten Objekten. Dies bleibt eine API-bedingte Skalierungsgrenze.
 
-- Die signierte Version `0.1.0-beta.2` ist in der Terraform Registry veröffentlicht; direkte Installation, Signaturprüfung, Validierung und Schema-Laden wurden auf macOS ARM64 geprüft. Ein Test gegen eine reale Stage-/Produktionsumgebung steht weiterhin aus.
+- Die signierte Standalone-Version `0.1.0-beta.2` ist unter [studio-ch/xcloud](https://registry.terraform.io/providers/studio-ch/xcloud/0.1.0-beta.2/docs) veröffentlicht. Direkte Installation, Signaturprüfung, Validierung und Schema-Laden wurden auf macOS ARM64 geprüft. Ein Test gegen reale Cloud-Ressourcen steht weiterhin aus.
 - Gast-Exec, Dateiübertragung, Wartungsaktionen, Image-Push-Jobs, Metriken, WebSocket-Konsole, Computer-/Workspace-/Screen-APIs sind nicht implementiert. Sie gehören zu operativen oder interaktiven API-Funktionen; dieser Ausbau betrifft deklarative Infrastruktur.
 - Das API-DTO muss `bootIntoRecovery` liefern. Passwort- und SSH-Injektion erfolgen im Worker; erfolgreicher Apply bestätigt keine Gast-Anmeldung.
 - Passwörter sind in Terraform als sensitive markiert, liegen aber im State. Entfernen eines Passwortarguments löscht kein bestehendes Passwort.
@@ -60,9 +61,9 @@ terraform fmt -check -recursive examples
 - `pendingElasticIp` und `attachToInstanceId` bei Create werden durch separate IP-/Attachment-Ressourcen funktional abgedeckt. Ein Terraform-Apply ist keine atomare Transaktion über diese Ressourcen.
 - Registry-Bytes bleiben bei Image-Delete standardmäßig erhalten. Wer sie ausdrücklich löschen lässt, muss die Berechtigungen und gemeinsame Nutzung des OCI-Artefakts berücksichtigen.
 
-## Matrix der 52 Xcloud-OpenAPI-Operationen
+## Matrix der 59 Xcloud-OpenAPI-Operationen
 
-„Implementiert“ bezeichnet die Provider-Abbildung auf Quellcode-/lokaler Testbasis. „Indirekt“ bezeichnet eine über andere Leseoperationen vorhandene Fähigkeit. Registry-Credentials, SSH-Keys und Regionen stehen außerhalb dieser 52 Xcloud-Operationen und sind ebenfalls unterstützt.
+„Implementiert“ bezeichnet die Provider-Abbildung auf Quellcode-/lokaler Testbasis. „Indirekt“ bezeichnet eine über andere Leseoperationen vorhandene Fähigkeit. Registry-Credentials, SSH-Keys und Regionen stehen außerhalb dieser 59 Xcloud-Operationen und sind ebenfalls unterstützt.
 
 | Methode | Pfad | Stand | Erläuterung |
 | --- | --- | --- | --- |
@@ -96,6 +97,13 @@ terraform fmt -check -recursive examples
 | GET | `/v1/xcloud/volumes/{id}` | Implementiert | Get one Xcloud volume |
 | DELETE | `/v1/xcloud/volumes/{id}` | Implementiert | Delete an Xcloud volume (must be detached) |
 | POST | `/v1/xcloud/volumes/{id}/resize` | Implementiert | Grow an Xcloud volume |
+| GET | `/v1/xcloud/snapshots` | Implementiert | Datenquelle `xcloud_snapshots`; enthält Snapshots gelöschter Instanzen. |
+| GET | `/v1/xcloud/snapshots/{id}` | Implementiert | Lesen und Polling von `xcloud_snapshot`. |
+| PATCH | `/v1/xcloud/snapshots/{id}` | Implementiert | Name und Beschreibung in place. |
+| DELETE | `/v1/xcloud/snapshots/{id}` | Implementiert | Asynchron; wartet, bis der Snapshot verschwunden ist (404). |
+| GET | `/v1/xcloud/instances/{id}/snapshots` | Indirekt | Über `xcloud_snapshots` und `source_instance_id` lesbar. |
+| POST | `/v1/xcloud/instances/{id}/snapshots` | Implementiert | `xcloud_snapshot`; wartet auf `ready`. |
+| POST | `/v1/xcloud/instances/{id}/restore` | Nicht implementiert | Imperative Aktion, die Daten verwirft; kein deklarativer Zustand. |
 | GET | `/v1/xcloud/image-pushes/{id}` | Nicht implementiert | Operative Gast-/Job-Funktion; nicht als Terraform-Ressource implementiert. |
 | POST | `/v1/xcloud/image-pushes/{id}/cancel` | Nicht implementiert | Operative Gast-/Job-Funktion; nicht als Terraform-Ressource implementiert. |
 | GET | `/v1/xcloud/images` | Implementiert | Einzel-/Listen-Datenquellen und Refresh; dieselbe Ausfall-Ambiguität wie bei Netzen. |

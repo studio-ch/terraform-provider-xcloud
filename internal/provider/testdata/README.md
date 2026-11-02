@@ -1,14 +1,14 @@
 # Public API fixture
 
 `public-api.json` was exported from the current Studio Control Plane public API
-on 2026-09-14 and reduced to the `/v1/xcloud*`, `/v1/registry-credentials*`,
+on 2026-11-02 and reduced to the `/v1/xcloud*`, `/v1/registry-credentials*`,
 `/v1/ssh-keys*` and `/v1/regions` paths. It contains no credentials or tenant data.
 
-Obtain a current public OpenAPI JSON export from the API maintainers, then
-regenerate from this repository root:
+Regenerate from the monorepo root:
 
 ```sh
-python3 scripts/update_api_contract.py /path/to/xcloud-openapi.json
+pnpm --silent --filter @studio-cp/api openapi:dump > /tmp/xcloud-openapi.json
+python3 apps/terraform-provider-xcloud/scripts/update_api_contract.py /tmp/xcloud-openapi.json
 ```
 
 The local mock validates requests and successful response status/body semantics

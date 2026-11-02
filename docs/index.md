@@ -9,7 +9,7 @@ terraform {
   required_providers {
     xcloud = {
       source  = "studio-ch/xcloud"
-      version = "0.1.0-beta.2"
+      version = "0.1.0-beta.4"
     }
   }
 }
@@ -40,6 +40,7 @@ See the installation guide for current Registry availability and local installat
 - [`xcloud_network`](resources/network.md)
 - [`xcloud_registry_credential`](resources/registry_credential.md)
 - [`xcloud_security_group`](resources/security_group.md)
+- [`xcloud_snapshot`](resources/snapshot.md)
 - [`xcloud_ssh_key`](resources/ssh_key.md)
 - [`xcloud_volume`](resources/volume.md)
 - [`xcloud_volume_attachment`](resources/volume_attachment.md)
@@ -62,6 +63,8 @@ See the installation guide for current Registry availability and local installat
 - [`xcloud_registry_credentials`](data-sources/registry_credentials.md)
 - [`xcloud_security_group`](data-sources/security_group.md)
 - [`xcloud_security_groups`](data-sources/security_groups.md)
+- [`xcloud_snapshot`](data-sources/snapshot.md)
+- [`xcloud_snapshots`](data-sources/snapshots.md)
 - [`xcloud_ssh_key`](data-sources/ssh_key.md)
 - [`xcloud_ssh_keys`](data-sources/ssh_keys.md)
 - [`xcloud_volume`](data-sources/volume.md)

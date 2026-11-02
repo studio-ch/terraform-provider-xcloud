@@ -8,10 +8,11 @@ Look up an Xcloud flavor through the public catalog API. Missing or ambiguous re
 data "xcloud_flavor" "selected" {
   region_id = data.xcloud_region.selected.id
   slug      = var.flavor_slug
+  guest_platform = "linux"
 }
 ```
 
-The lookup is scoped to the selected region and tenant. Missing or ambiguous matches fail. Pass the returned sizing and platform together with `flavor_slug` to the instance resource; the API resolves the flavor authoritatively.
+The lookup is scoped to the selected region and tenant. Missing or ambiguous matches fail. A preset can support both macOS and Linux. Set `guest_platform` to select the desired OS; `supported_platforms` lists all allowed systems. Pass the returned sizing and platform together with `flavor_slug` to the instance resource; the API resolves the flavor authoritatively.
 
 ## Schema
 
@@ -19,6 +20,8 @@ The lookup is scoped to the selected region and tenant. Missing or ambiguous mat
 | --- | --- | --- | --- |
 | `cpu_cores` | `number` | Read-only |  |
 | `disk_gib` | `number` | Read-only |  |
+| `guest_platform` | `string` | Optional | Filter by macos or linux; also selects the capacity calculation. |
+| `supported_platforms` | `list(string)` | Read-only | Allowed guest systems in this region. |
 | `hardware_generation` | `string` | Read-only |  |
 | `id` | `string` | Read-only |  |
 | `label` | `string` | Read-only |  |

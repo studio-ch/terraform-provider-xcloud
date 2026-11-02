@@ -7,8 +7,8 @@ admin-session, CLI subprocess, or upstream Xcloud credentials dependency.
 
 The provider is maintained in its public repository:
 [studio-ch/terraform-provider-xcloud](https://github.com/studio-ch/terraform-provider-xcloud).
-The provider is published in the [Terraform Registry](https://registry.terraform.io/providers/studio-ch/xcloud/0.1.0-beta.3/docs)
-as `studio-ch/xcloud`. The current signed preview is `0.1.0-beta.3`.
+The provider is published in the [Terraform Registry](https://registry.terraform.io/providers/studio-ch/xcloud/0.1.0-beta.4/docs)
+as `studio-ch/xcloud`. The current signed preview is `0.1.0-beta.4`.
 
 ## Install from the Terraform Registry
 
@@ -19,7 +19,7 @@ terraform {
   required_providers {
     xcloud = {
       source  = "studio-ch/xcloud"
-      version = "0.1.0-beta.3"
+      version = "0.1.0-beta.4"
     }
   }
 }
@@ -60,9 +60,10 @@ Requires Cloud Console v0.12.73 or later.
 | `xcloud_ssh_key` | Register, rename and delete an SSH public key | Key UUID |
 | `xcloud_image` | Register an OCI image, update labels, remove the catalog entry; optional registry deletion | `region-uuid/name` |
 | `xcloud_registry_credential` | Create, update and delete registry authentication, including password rotation | Credential UUID |
+| `xcloud_snapshot` | Snapshot of an instance's boot disk; waits until ready, renames in place, waits until deleted | Snapshot UUID |
 
-The 20 data sources cover individual regions, flavors, images, instances,
-networks, security groups, volumes, Elastic IPs, SSH keys and registry credentials,
+The 22 data sources cover individual regions, flavors, images, instances,
+networks, security groups, volumes, Elastic IPs, snapshots, SSH keys and registry credentials,
 plus lists of each (`xcloud_instances`, `xcloud_images`, etc.). Catalog lookups
 use slug or region/name; other lookups use UUID or region/name. Typed fields
 cover common attributes; `response_json` exposes the complete public DTO,
@@ -73,14 +74,14 @@ See [`docs/`](./docs/index.md) for the schema and examples.
 
 Download the archive for your workstation from
 [GitHub Releases](https://github.com/studio-ch/terraform-provider-xcloud/releases).
-The current signed preview is `v0.1.0-beta.3`. Builds are available for macOS, Linux and
+The current signed preview is `v0.1.0-beta.4`. Builds are available for macOS, Linux and
 Windows on AMD64 and ARM64. Extract the archive into a dedicated directory and
 point `dev_overrides` below to that directory. The archive contains
-`terraform-provider-xcloud_v0.1.0-beta.3`
-(`terraform-provider-xcloud_v0.1.0-beta.3.exe` on Windows).
+`terraform-provider-xcloud_v0.1.0-beta.4`
+(`terraform-provider-xcloud_v0.1.0-beta.4.exe` on Windows).
 
 Verify the archive against the release's
-`terraform-provider-xcloud_0.1.0-beta.3_SHA256SUMS` file before extracting it:
+`terraform-provider-xcloud_0.1.0-beta.4_SHA256SUMS` file before extracting it:
 `shasum -a 256 <archive.zip>` on macOS or `sha256sum <archive.zip>` on Linux.
 Starting with `v0.1.0-beta.3`, the checksums have a detached GPG signature.
 Verify that signature with the [public release key](keys/xcloud-release-signing.asc)
@@ -92,7 +93,7 @@ the following value before importing it:
 curl -fsSLo xcloud-release-signing.asc https://raw.githubusercontent.com/studio-ch/terraform-provider-xcloud/main/keys/xcloud-release-signing.asc
 gpg --show-keys --fingerprint xcloud-release-signing.asc
 gpg --import xcloud-release-signing.asc
-gpg --verify terraform-provider-xcloud_0.1.0-beta.3_SHA256SUMS.sig terraform-provider-xcloud_0.1.0-beta.3_SHA256SUMS
+gpg --verify terraform-provider-xcloud_0.1.0-beta.4_SHA256SUMS.sig terraform-provider-xcloud_0.1.0-beta.4_SHA256SUMS
 ```
 
 The earlier `v0.1.0-beta.1` download remains unsigned.
@@ -239,7 +240,7 @@ make lint
 ```
 
 Tests use a local HTTP server and real Terraform provider RPCs; they create no
-cloud resources. Coverage includes all nine resources and all 20 data sources, import,
+cloud resources. Coverage includes all ten resources and all 22 data sources, import,
 VM replacement with stable Elastic IP, flavor resize, tags/lifetime drift,
 password rotation, suspend/recovery, image labels, network specs, and failure
 state retention. Requests and successful response status/body semantics are
@@ -250,9 +251,9 @@ GitHub Actions builds the provider, checks Go and Terraform formatting, runs
 `go vet`, and executes the full test suite with the race detector on pushes and
 pull requests. No monorepo or Go workspace is required.
 
-The signed `0.1.0-beta.3` release is published in the Terraform Registry. A fresh
-direct Registry installation, signature verification, validation and schema loading
-passed on macOS ARM64. A real deployment acceptance run remains pending; the
+Signed releases are published to the Terraform Registry as `studio-ch/xcloud`.
+For `0.1.0-beta.2`, a fresh direct Registry installation, signature verification,
+validation and schema loading passed on macOS ARM64. A real deployment acceptance run remains pending; the
 provider remains a preview. Building and testing do not create cloud resources.
 
 The implemented surface covers infrastructure lifecycle. Guest command execution,
