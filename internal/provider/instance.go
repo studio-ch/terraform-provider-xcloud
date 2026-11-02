@@ -48,6 +48,7 @@ type instanceModel struct {
 	RegionID           types.String `tfsdk:"region_id"`
 	Name               types.String `tfsdk:"name"`
 	ImageRef           types.String `tfsdk:"image_ref"`
+	SourceSnapshotID   types.String `tfsdk:"source_snapshot_id"`
 	NetworkRef         types.String `tfsdk:"network_ref"`
 	Platform           types.String `tfsdk:"platform"`
 	CPU                types.Int64  `tfsdk:"cpu_cores"`
@@ -90,7 +91,10 @@ func (r *instanceResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 	platform := immutable("macos", "Guest platform: macos or linux. Linux requires SSH keys or a complete user_data configuration.")
 	platform.Validators = []validator.String{stringvalidator.OneOf("macos", "linux")}
 	resp.Schema = schema.Schema{Description: "An Xcloud VM. Create, resize and delete wait for completion. Sizing changes cause downtime. Import with the instance UUID.", Attributes: map[string]schema.Attribute{
-		"id": idAttribute(), "region_id": uuidAttribute("Region UUID.", true), "name": requiredString("Display name.", false), "image_ref": requiredString("Image name or OCI reference accepted by the public API.", true),
+		"id": idAttribute(), "region_id": uuidAttribute("Region UUID.", true), "name": requiredString("Display name.", false),
+		"image_ref":          schema.StringAttribute{Optional: true, Computed: true, Description: "Image name or OCI reference accepted by the public API. Exactly one of image_ref and source_snapshot_id is required; with source_snapshot_id it reads the snapshot's source image. Changes replace the VM.", Validators: []validator.String{stringvalidator.LengthAtLeast(1)}, PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown(), stringplanmodifier.RequiresReplaceIfConfigured()}},
+		"source_snapshot_id": schema.StringAttribute{Optional: true, Description: "UUID of a ready snapshot in the same region to create the VM from instead of image_ref. platform must match the snapshot's, disk_gib must be at least its disk_gib and cpu_cores and memory_gib at least its minimums. The guest keeps the snapshot's users: user_data and admin_username do not apply. Changes replace the VM; deleting the snapshot later does not.", Validators: []validator.String{stringvalidator.RegexMatches(regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`), "must be a UUID")}, PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}},
+
 		"network_ref": immutable("default", "Network name in this region."), "platform": platform,
 		"cpu_cores": sized(256), "memory_gib": sized(2048), "disk_gib": sized(65536),
 		"flavor_slug":         schema.StringAttribute{Optional: true, Computed: true, Description: "Catalog flavor slug. CPU, memory and disk must match the flavor; this is not a sizing resolver."},
@@ -115,6 +119,12 @@ func (m *instanceModel) flatten(o client.Object) {
 	m.RegionID = str(o, "regionId")
 	m.Name = str(o, "name")
 	m.ImageRef = str(o, "imageRef")
+	// The API clears sourceSnapshotId once the snapshot is deleted. The VM
+	// is unaffected, so keep the known value instead of planning a
+	// replacement.
+	if id := str(o, "sourceSnapshotId"); !id.IsNull() || m.SourceSnapshotID.IsUnknown() {
+		m.SourceSnapshotID = id
+	}
 	m.NetworkRef = str(o, "networkRef")
 	m.Platform = str(o, "platform")
 	m.CPU = integer(o, "cpuCores")
@@ -163,7 +173,12 @@ func (m *instanceModel) flatten(o client.Object) {
 	}
 }
 func (m instanceModel) createBody() client.Object {
-	b := client.Object{"regionId": m.RegionID.ValueString(), "name": m.Name.ValueString(), "imageRef": m.ImageRef.ValueString(), "networkRef": m.NetworkRef.ValueString(), "platform": m.Platform.ValueString(), "cpuCores": m.CPU.ValueInt64(), "memoryGib": m.Memory.ValueInt64(), "diskGib": m.Disk.ValueInt64(), "displayWidth": m.DisplayWidth.ValueInt64(), "displayHeight": m.DisplayHeight.ValueInt64(), "sshKeyIds": setWire(m.SSHKeys), "securityGroups": setWire(m.SecurityGroups)}
+	b := client.Object{"regionId": m.RegionID.ValueString(), "name": m.Name.ValueString(), "networkRef": m.NetworkRef.ValueString(), "platform": m.Platform.ValueString(), "cpuCores": m.CPU.ValueInt64(), "memoryGib": m.Memory.ValueInt64(), "diskGib": m.Disk.ValueInt64(), "displayWidth": m.DisplayWidth.ValueInt64(), "displayHeight": m.DisplayHeight.ValueInt64(), "sshKeyIds": setWire(m.SSHKeys), "securityGroups": setWire(m.SecurityGroups)}
+	if !m.SourceSnapshotID.IsNull() && !m.SourceSnapshotID.IsUnknown() {
+		b["sourceSnapshotId"] = m.SourceSnapshotID.ValueString()
+	} else {
+		b["imageRef"] = m.ImageRef.ValueString()
+	}
 	optionalString(b, "flavorSlug", m.Flavor)
 	optionalString(b, "hardwareGeneration", m.HardwareGeneration)
 	if !m.UserData.IsNull() && !m.UserData.IsUnknown() {
@@ -387,11 +402,13 @@ func (r *instanceResource) validateFlavor(ctx context.Context, m instanceModel) 
 	if m.Flavor.IsNull() || m.Flavor.IsUnknown() {
 		return nil
 	}
-	o, err := r.client.Find(ctx, "/v1/xcloud/flavors", queryRegion(m.RegionID), "slug", m.Flavor.ValueString())
+	query := queryRegion(m.RegionID)
+	query.Set("platform", m.Platform.ValueString())
+	o, err := r.client.Find(ctx, "/v1/xcloud/flavors", query, "slug", m.Flavor.ValueString())
 	if err != nil {
 		return err
 	}
-	if !m.CPU.Equal(integer(o, "cpuCores")) || !m.Memory.Equal(integer(o, "memoryGib")) || !m.Disk.Equal(integer(o, "diskGib")) || !m.Platform.Equal(str(o, "platform")) {
+	if !m.CPU.Equal(integer(o, "cpuCores")) || !m.Memory.Equal(integer(o, "memoryGib")) || !m.Disk.Equal(integer(o, "diskGib")) || !flavorAllowsGuest(o, m.Platform.ValueString()) {
 		return fmt.Errorf("cpu_cores, memory_gib, disk_gib and platform must match flavor %q; use the xcloud_flavor data source", m.Flavor.ValueString())
 	}
 	if !m.HardwareGeneration.IsNull() && !m.HardwareGeneration.IsUnknown() && !m.HardwareGeneration.Equal(str(o, "hardwareGeneration")) {
@@ -399,11 +416,34 @@ func (r *instanceResource) validateFlavor(ctx context.Context, m instanceModel) 
 	}
 	return nil
 }
+func flavorAllowsGuest(row client.Object, platform string) bool {
+	if systems, ok := row["supportedPlatforms"].([]any); ok {
+		for _, system := range systems {
+			if system == platform {
+				return true
+			}
+		}
+		return false
+	}
+	return str(row, "platform").ValueString() == platform
+}
+
 func (r *instanceResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var m instanceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &m)...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+	if !m.ImageRef.IsUnknown() && !m.SourceSnapshotID.IsUnknown() && m.ImageRef.IsNull() == m.SourceSnapshotID.IsNull() {
+		resp.Diagnostics.AddError("Ambiguous instance source", "Set exactly one of image_ref and source_snapshot_id.")
+	}
+	if !m.SourceSnapshotID.IsNull() {
+		if !m.UserData.IsNull() {
+			resp.Diagnostics.AddError("Startup configuration does not apply to snapshots", "An instance created from a snapshot boots the snapshot's disk as it was; remove user_data and user_data_format.")
+		}
+		if !m.AdminUsername.IsNull() && !m.AdminUsername.IsUnknown() {
+			resp.Diagnostics.AddError("admin_username does not apply to snapshots", "An instance created from a snapshot keeps the snapshot's admin user; remove admin_username.")
+		}
 	}
 	if m.Platform.ValueString() == "linux" && (!m.AdminPassword.IsNull() || m.Recovery.ValueBool()) {
 		resp.Diagnostics.AddError("macOS-only configuration", "admin_password and recovery boot are not supported for Linux guests.")
@@ -467,7 +507,8 @@ func (r *instanceResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 	if req.State.Raw.IsNull() {
 		// Creation needs an access configuration. Imported guests may manage
 		// access themselves: their write-only user_data cannot be recovered.
-		if plan.Platform.ValueString() == "linux" && plan.UserData.IsNull() && !plan.SSHKeys.IsUnknown() && len(plan.SSHKeys.Elements()) == 0 {
+		// A snapshot's guest already has its users and keys.
+		if plan.Platform.ValueString() == "linux" && plan.UserData.IsNull() && plan.SourceSnapshotID.IsNull() && !plan.SSHKeys.IsUnknown() && len(plan.SSHKeys.Elements()) == 0 {
 			resp.Diagnostics.AddError("Linux requires SSH access", "Set ssh_key_ids or a complete user_data configuration when creating a Linux instance.")
 		}
 		return

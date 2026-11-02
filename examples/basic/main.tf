@@ -72,10 +72,22 @@ resource "xcloud_elastic_ip" "server" {
   instance_id = xcloud_instance.server.id
 }
 
+# Optional: snapshot the server's boot disk. Snapshots are billed and outlive
+# the instance unless destroyed with it.
+resource "xcloud_snapshot" "server" {
+  count       = var.take_snapshot ? 1 : 0
+  instance_id = xcloud_instance.server.id
+  name        = "terraform-server-baseline"
+}
+
 output "instance_id" {
   value = xcloud_instance.server.id
 }
 
 output "public_address" {
   value = xcloud_elastic_ip.server.public_address
+}
+
+output "snapshot_id" {
+  value = one(xcloud_snapshot.server[*].id)
 }

@@ -72,7 +72,7 @@ func TestStartupConfigValidation(t *testing.T) {
 			r := newInstanceResource().(*instanceResource)
 			var sr resource.SchemaResponse
 			r.Schema(ctx, resource.SchemaRequest{}, &sr)
-			m := instanceModel{Platform: types.StringValue("linux"), UserData: types.StringValue(`{"ignition":{"version":"3.4.0"}}`), UserDataFormat: types.StringValue("ignition"), Tags: types.MapNull(types.StringType), SSHKeys: types.SetNull(types.StringType), SecurityGroups: types.SetNull(types.StringType)}
+			m := instanceModel{ImageRef: types.StringValue("ubuntu"), Platform: types.StringValue("linux"), UserData: types.StringValue(`{"ignition":{"version":"3.4.0"}}`), UserDataFormat: types.StringValue("ignition"), Tags: types.MapNull(types.StringType), SSHKeys: types.SetNull(types.StringType), SecurityGroups: types.SetNull(types.StringType)}
 			tc.edit(&m)
 			state := tfsdk.State{Schema: sr.Schema}
 			if ds := state.Set(ctx, &m); ds.HasError() {
