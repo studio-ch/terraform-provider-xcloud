@@ -251,9 +251,9 @@ GitHub Actions builds the provider, checks Go and Terraform formatting, runs
 `go vet`, and executes the full test suite with the race detector on pushes and
 pull requests. No monorepo or Go workspace is required.
 
-Signed releases are published to the Terraform Registry as `studio-ch/xcloud`.
-For `0.1.0-beta.2`, a fresh direct Registry installation, signature verification,
-validation and schema loading passed on macOS ARM64. A real deployment acceptance run remains pending; the
+The signed `0.1.0-beta.4` release is published in the Terraform Registry. On
+2 November 2026 a fresh direct Registry installation, signature verification,
+validation and schema loading (10 resources, 22 data sources) passed on macOS ARM64. A real deployment acceptance run remains pending; the
 provider remains a preview. Building and testing do not create cloud resources.
 
 The implemented surface covers infrastructure lifecycle. Guest command execution,
